@@ -1,0 +1,15 @@
+development: &development
+  protocol: 'http'
+  host: localhost 
+  port: 5984
+  prefix: lims
+  suffix: repo
+  username: root
+  password: password
+test:
+  <<: *development
+  suffix: test
+
+production:
+  <<: *development
+  protocol: 'http'

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LimsNationalDashboard</title>
+
+ 	<%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag    'overlay-bootstrap.min', media: 'all', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag    'bootstrap-fileupload.min', media: 'all', 'data-turbolinks-track' => true %>
+
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+</head>
+
+<style>
+	nav{
+		padding: 8px !important;
+        background: ghostwhite;
+	}
+	nav .btn{
+		padding: 4px !important;
+		width: 150px;
+		border-radius: 2px !important;
+        box-shadow: 5px 0px 4px 1px lightblue;
+	}
+    .search .btn{
+        padding: 1px !important;
+        width: 80px;
+        margin: 3px;
+        margin-right: 25%;
+        border-radius: 2px !important;
+        box-shadow: 5px 0px 4px 1px lightblue;
+    }
+
+</style>
+<body>
+
+<div id='containerA' class="container-fluid">
+
+	<nav class="navbar">
+		<div class="container-fluid">
+			<div class=" nav navbar-nav pull-xs-left">				
+				<h4 class="brand nav-item" style="color: darkslategray"> National LIMS Monitor</h4>
+			</div>
+			<div class="btn-group nav navbar-nav pull-xs-right">
+                <a id='sync' url="/" class="btn btn-primary nav-item nav-link">Sync</a>
+				<a id='samples' url="/tests" class="btn btn-primary nav-item nav-link">Samples</a>
+				<a id='reports' url="/reports" class="btn btn-primary nav-item nav-link">Reports</a>
+                <a id='admin' url="/admin" class="btn btn-primary nav-item nav-link">Admin</a>
+            </div>
+		</div>
+	</nav>
+    <div id="frame" style="width: 100%;">
+        <%= yield %>
+    </div>
+</div>
+</body>
+
+<script>
+    id = "<%= params[:id] || 'sync'%>";
+    if (id){
+        tab = document.getElementById(id.toLowerCase().trim());
+        if(!tab.className.match("active")){
+            tab.className += " active";
+        }
+    }
+
+    $('.btn-group .nav-link').click(function() {
+        $(".btn-group .nav-link").attr("class", "btn btn-primary nav-item nav-link");
+
+        window.location = this.getAttribute("url") + "?id=" + this.innerHTML;
+    });
+</script>
+</html>

@@ -1,0 +1,251 @@
+<style>
+     .main td{
+        font-size: 0.9em;
+        padding: 6.5px;
+        padding-right: 0px;
+        border: 1px dotted lightgray;
+    }
+    .main .btn{
+        font-size: 0.9em;
+        padding: 4px;
+        margin-top: -5px;
+        margin-bottom: -5px;
+        border-radius: 0px;
+        width: 75px;
+        border-bottom: 1px solid lightgray;
+        border-left: 1px dotted lightgray;
+        border-right: 1px dotted lightgray;
+    }
+    .main th{
+        background: #d3d3d3;
+        padding: 6.5px;
+        border: 1px solid white;
+    }
+
+        #frame{
+            border-top: 2px solid darkred;
+        }
+        select, input{
+            border: 1px solid lightgray;
+            margin: 5px;
+            min-width: 70px;
+        }
+        #holder table{
+            width: 100%;
+        }
+         #holder td{
+             padding: 3px;
+         }
+</style>
+
+
+<script>
+    function __$(id){
+        return document.getElementById(id);
+    }
+    function paginate(page){
+        __$('page').value = page;
+        __$('form').submit();
+      //  window.location.href = "/tests?id=Samples&page=" + page;
+    }
+    function search(){
+        __$('form').submit();
+        //var criteria = __$('search-criteria').value;
+        //var value = __$('search').value;
+
+        //var year = __$('year').value;
+        //var month = __$('month').value;
+        //var day = __$('day').value;
+
+        //window.location.href = "/tests?id=Samples&criteria=" + criteria + "&value=" + value +
+         //       "&year=" + year + "&month=" + month + "&day=" + day;
+    }
+
+    function preselect(){
+        <% if params['search-criteria'].present?%>
+            __$('search-criteria').value = '<%=params['search-criteria']%>'
+        <% end %>
+
+        <% if params['search-value'].present?%>
+        __$('search-value').value = '<%=params['search-value']%>'
+        <% end %>
+
+        <% if params['year'].present?%>
+        __$('year').value = '<%=params['year']%>'
+        <% end %>
+
+        <% if params['month'].present?%>
+        __$('month').value = '<%=params['month']%>'
+        <% end %>
+
+        <% if params['day'].present?%>
+        __$('day').value = '<%=params['day']%>'
+        <% end %>
+    }
+</script>
+
+
+<div class="container-fluid col-xs-12" style="height: 4.5vh">
+  <form id="form" action="<%= request.fullpath%>">
+        <span class='search' style="float: right">
+            <a href="javascript:search();" class="btn btn-success nav-item nav-link">Search</a>
+        </span>
+
+      <span style="float: right; margin-right: 30px;">
+         Date
+          <select id="year" name="year">
+                <% (@start_year .. Date.today.year).each do |year|%>
+                    <option value="<%= year%>"><%= year%></option>
+                <% end %>
+          </select>
+
+          <select id="month" name="month">
+            <option value="">All</option>
+            <% (['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']).each_with_index do |month, i|%>
+                <option value="<%= (i + 1)%>"><%= month%></option>
+            <% end %>
+          </select>
+
+          <select id="day" name="day">
+            <option value="">All</option>
+            <% (1 .. 31).each_with_index do |day|%>
+                <option value="<%= day%>"><%= day%></option>
+            <% end %>
+          </select>
+      </span>
+      <span style="float: right;margin-right: 20px;">
+          <select id="search-criteria" name="search-criteria">
+            <option value=""><i style="color: lightgray !important;font-size: 0.8em !important; ">Search By</i></option>
+            <% ([['Tracking Number', 'tracking_number'],
+                 ['District', 'by_datetime_and_district'],
+                 ['Sending Facility', 'by_datetime_sending_facility'],
+                 ['Target Lab', 'by_datetime_and_receiving_facility'],
+                 ['Sample Type', 'by_sample_type']]
+                ).each do |key|%>
+                <option value="<%= key[1]%>"><%= key[0]%></option>
+            <% end %>
+          </select>
+        <input id="search-value" name="search-value" style="width: 200px;float: right;margin-right: 20px;" placeholder="Search value"/>
+      </span>
+    <input id="page" name="page"  value='1' type="hidden"/>
+  </form>
+</div>
+
+<div style="width: 100%; height: 83.5vh;border-top: 1px solid darkred;border-bottom: 1px solid lightgray;overflow: auto;margin: 0px;">
+
+  <div class="container-fluid col-xs-12"><table class="main table table-striped table-fixed">
+    <thead>
+        <tr>
+          <th>Tracking Number</th>
+          <th>District</th>
+          <th>Sending Facility</th>
+          <th>Target Lab</th>
+          <th>Patient Name</th>
+          <th>Sample Type</th>
+          <th>Date Drawn</th>
+          <th>Test Types</th>
+          <th>status</th>
+          <th>&nbsp</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% @tests.each_with_index do |test, i|
+            test['results'] = test.results
+            patient = test['patient']
+            name = (patient['first_name'] + ' ' + patient['middle_name'] + ' ' + patient['last_name']).titleize
+           test['patient'] = name + "  - born: " + (patient['date_of_birth'].to_time.strftime("%d-%b-%Y") rescue '-')
+        %>
+            <tr>
+              <td><%= test['_id']%></td>
+              <td><%= test['district']%></td>
+              <td><%= test['sending_facility']%></td>
+              <td><%= test['receiving_facility']%></td>
+              <td><%= name%></td>
+              <td><%= test['sample_type']%></td>
+              <td><%= test['date_drawn'].to_date.strftime("%d-%b-%Y") rescue '--'%></td>
+              <td><%= test['test_types'].join(', ')[0 .. 15]%></td>
+              <td><%= test.status%></td>
+              <td data="<%= test.to_json%>" onclick="loadOrder(this)"><span class="btn btn-success" data-target=".bd-example-modal-lg" data-toggle="modal">View</span></td>
+            </tr>
+        <% end %>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div id="holder" class="container" style='position: absolute; left: 12%; top: 15vh; z-index: 2000;
+        display: none; width: 80%; height: 75vh;overflow: auto;
+        background: white; border: 1px solid gray;'>
+    <table class="table table-condensed" >
+      <tr class="table-row">
+            <td class="table-cell info ">Tracking Number</td>
+            <td class="table-cell info">Tracking Numbe</td>
+      </tr>
+    </table>
+
+</div>
+<div id="shield" style="display: none; position: absolute; width: 100%; left: 0px; top: 0px; height: 100vh;
+        background: rgba(0, 0, 0, 0.1)" onmousedown="hide()">
+
+</div>
+
+  <ul class="footer pagination pagination-sm" style="margin-left: 18%;height: 2vh;position: absolute; bottom: 5px;">
+    <li style="cursor: pointer" class="page-item" onmousedown="paginate(1)">
+      <a class="page-link" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+        <span class="sr-only">Previous</span>
+      </a>
+    </li>
+    <% @pages.each do |i|%>
+    <% if i == '' %>
+        <li class="page-item dummy-li"><span class="page-link">...</span></li>
+    <% else
+        clas = @cur_page == i ? 'active' : ''
+    %>
+        <li style="cursor: pointer" onclick="paginate(<%=i%>)" class="page-item <%= clas%>"><a class="page-link"><%= i%></a></li>
+    <% end
+       end
+    %>
+    <li style="cursor: pointer" class="page-item"  onmousedown="paginate('<%= @page_count%>')">
+      <a class="page-link" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+  </ul>
+<style>
+    .table-cell{
+        border: 1px solid black;
+    }
+</style>
+<script>
+
+    preselect();
+
+    function loadOrder(td){
+        var data = td.getAttribute('data');
+
+        data = JSON.parse(data);
+
+        popup(data);
+
+        __$("shield").style.display = "block";
+
+        __$("holder").style.display = "block";
+    }
+
+    function popup(data){
+
+    }
+
+    function hide(){
+
+        __$("holder").innerHTML = "";
+
+        __$("holder").style.display = "none";
+
+        __$("shield").style.display = "none";
+
+    }
+
+</script>
