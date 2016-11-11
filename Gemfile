@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 gem 'rails', '4.2.6'
 gem 'bootstrap', '4.0.0.alpha3'
 gem 'sprockets-rails', '>= 2.3.2'
-
+gem 'simple-spreadsheet'
 # tooltips and popovers depend on tether
 source 'https://rails-assets.org' do
   gem 'rails-assets-tether', '>= 1.1.0'

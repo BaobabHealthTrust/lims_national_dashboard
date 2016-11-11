@@ -20,9 +20,33 @@ class TestController < ApplicationController
     @count =  Order.generic.startkey([start_time]).endkey([end_time]).count
     @page_size = @settings['page_size']
     @page_count = (@count/@page_size).ceil
+    search_criteria = params["search-criteria"]
+    search_value = params["search-value"]
 
-    @tests =  Order.generic.startkey([start_time]).endkey([end_time]).page(@cur_page).per(@page_size)
+    case search_criteria
+      when 'tracking_number'
+        @tests = [Order.find(search_value)].compact
+      when 'by_datetime_and_sending_facility'
+        @tests = Order.by_datetime_and_sending_facility.startkey(
+            [search_value + "_" + start_time]).endkey([search_value + "_" + end_time]
+        ).page(@cur_page).per(@page_size).each
+      when 'by_datetime_and_receiving_facility'
+        @tests = Order.by_datetime_and_receiving_facility.startkey(
+            [search_value + "_" +  start_time]).endkey([search_value + "_" + end_time]
+        ).page(@cur_page).per(@page_size).each
+      when 'by_datetime_and_sample_type'
+        @tests = Order.by_datetime_and_sample_type.startkey(
+            [search_value + "_" + start_time]).endkey([search_value + "_" + end_time]
+        ).page(@cur_page).per(@page_size).each
+      when 'by_datetime_and_district'
+        @tests = Order.by_datetime_and_district.startkey(
+            [search_value + "_" + start_time]).endkey([search_value + "_" + end_time]
+        ).page(@cur_page).per(@page_size).each
+      else
+        @tests =  Order.generic.startkey([start_time]).endkey([end_time]).page(@cur_page).per(@page_size).each
+    end
 
+    @tests = @tests.to_a
     #raise (start_time + " ---- " + end_time).inspect
     #pagination management
     if @page_count <= 20

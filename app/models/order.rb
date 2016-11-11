@@ -37,28 +37,28 @@ class Order < CouchRest::Model::Base
     view :by_datetime_and_sending_facility,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['date_time'], doc['sending_facility']]);
+                      emit([doc['sending_facility'] + '_' + doc['date_time']]);
                     }
                 }"
 
     view :by_datetime_and_district,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['date_time'], doc['district']]);
+                      emit([doc['district'] + '_' + doc['date_time']]);
                     }
                 }"
 
     view :by_datetime_and_receiving_facility,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['date_time'], doc['receiving_facility']]);
+                      emit([doc['receiving_facility'] + '_' + doc['date_time']]);
                     }
                 }"
 
     view :by_datetime_and_sample_type,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['date_time'], doc['sample_type']]);
+                      emit([doc['sample_type'] + '_' + doc['date_time']]);
                     }
                 }"
 
