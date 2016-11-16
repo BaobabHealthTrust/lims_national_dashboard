@@ -12,4 +12,7 @@ Rails.application.routes.draw do
 
    get '/general_counts' => 'report#general_counts'
 
+   get '/generic_report_data' => 'report#general_report_data'
+
+
 end

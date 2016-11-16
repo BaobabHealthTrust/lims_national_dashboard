@@ -1,0 +1,388 @@
+<style>
+    #table, #tbl{
+        border-collapse: collapse;
+        font-size: 0.9em;
+    }
+    #tbl th{
+        border: 1px solid lightgray;
+        padding: 7px;
+    }
+    #table td{
+        border: 1px solid lightgray;
+        padding: 7px;
+    }
+    .data{
+        text-align: center;
+        color: darkslategrey;
+    }
+    .header-row{
+        background: #f8f8ff;
+        font-weight: bold;
+    }
+
+</style>
+
+<div class="container-fluid text-xs-center" style="border-bottom: 1px solid black;border-top: 2px solid darkred;background: #d3d3d3">
+  <h4> General Counts - <%= params[:quarter]%></h4>
+</div>
+
+<div style="width: 100%;padding: 0.5%;overflow: auto;margin: 0px;padding-bottom: 0px;">
+    <table id="tbl" class="table table-condensed table-striped" style="width:100%;border: 1px solid lightgray;margin: 0px; padding: 0px;">
+      <tr class="table-row" style="background: darkslategrey;color: white">
+        <th style="width: 3%">#</th>
+        <th style="width: 45%">Parameter</th>
+        <th style="width: 12%;text-align: center" id="month1"><%= @months[0]%></th>
+        <th style="width: 12%; text-align: center" id="month2"><%= @months[1]%></th>
+        <th style="width: 12%; text-align: center" id="month3"><%= @months[2]%></th>
+        <th style="width: 12%; text-align: center" id="total">Total</th>
+      </tr>
+    </table>
+</div>
+
+<div id="progress-bar" style="width: 100%;padding-left: 0.5%;padding-right: 1.5%;overflow: auto;margin: 0px;padding-bottom: 0px;height: 2px;">
+  <div style="width: 100%;padding: 0px;margin:0px;background: red;">
+    <div id="progress-color" style="width: 0%;padding: 0px;font-size: 2px;background: dodgerblue;">
+      &nbsp;
+    </div>
+  </div>
+</div>
+
+<div id="reports" style="width: 100%; height: 78vh;padding: 0.5%;padding-top: 0px;overflow: auto;margin: 0px;">
+  <table id="table" class="table table-condensed table-striped" style="width: 100%;border: 1px solid lightgray;">
+
+  </table>
+</div>
+
+<script>
+   loaded = 0;
+    map = [
+        ["Haematology",
+            [
+                ["Full Blood Count", ['FBC'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Heamoglobin only (blood donors excluded)", ['FBC'], ['HGB'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Patients with Hb ≤ 6.0g/dl", ['FBC'], ['HGB'], ['6.0', "<="], ["", ""], ["", ""], ""],
+                ["Patients with Hb ≤ 6.0g/dl who were transfused", ['FBC'], ['HGB'], ['6.0', "<="], ["", ""], ["", ""], ""],
+                ["Patients with Hb > 6.0g/dl", ['FBC'], ['HGB'], ['6.0', ">"], ["", ""], ["", ""], ""],
+                ["Patients with Hb > 6.0g/dl who were transfused",  ['FBC'], ['HGB'], ['6.0', ">"], ["", ""], ["", ""], ""],
+                ["WBC manual count", ['Manual Differential & Cell Morphology'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["WBC differential",  ['FBC'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Erythrocyte Sedimentation Rate (ESR)", ['ESR'], ['ESR'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Sickling Test", ['Sickling Test'], ['Sickling Screen'], ['aval', ""], ["", ""], ["", ""], ""],
+                //["Reticulocyte count",  [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Prothrombin time (PT)",  ['Prothrombin Time'], ['PT'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Activated Partial Thromboplastin Time (APTT)", ['APTT'], ['APTT'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["International Normalized Ratio (INR)", ['INR'], ['INR'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["CD4 absolute count",  ['CD4'], ['CD4 Count'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["CD4 percentage",  ['CD4'], ['CD4 percent'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood film for red cell morphology",  ['Blood Parasites Screen'], ['Blood film'], ['aval', ""], ["", ""], ["", ""], ""]//,
+                //["Bleeding/clotting time", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+            ]
+        ],
+
+        ["Blood Transfusion Services",
+            [
+                ["Number of units ordered from MBTS" ,[''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of units received from MBTS", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of blood donors registered in the lab", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of blood donors rejected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of donors rejected due to TTIs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood donation collected in the laboratory", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood Donor Screening", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood grouping done on prospective donors", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Heamoglobin Check on donors", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood donors screened for HIV", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["HIV positive donors", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood donors screened for Hepatitis BsAg", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["HepBsAg positive donors", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood donors screened for Syphilis", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Syphilis positive donors", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood donor Screening for Malaria", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Transfusion", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["blood grouping done on Patients", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["X- match for matenity", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["X-match for peeds", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["X-match for others", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["X-match done in the laboratory", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["X-match done on patients with Hb ≤ 6.0g/dl", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["X-match done on patients with Hb > 6.0g/dl", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["X-match done on patients with unknown Hb", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total suspected transfusion reactions", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total confirmed transfusion reactions", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Patients transfused with MBTS blood", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Those transfused with family replacement blood", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of units returned from the wards", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of units reallocated", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Blood units lost due to other reasons", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Expired Blood units", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+            ]
+        ],
+
+        ["Serology",
+            [
+                ["Syphilis screening on patients", ['Syphilis Test'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive tests &uarr;", ['Syphilis Test'], ['VDRL'], ['Reactive', ""], ["", ""], ["", ""], ""],
+                ["Syphilis screening on antenatal mothers", ['Syphilis Test'], ['aval'], ['aval', ""], ["", ""], ["", ""], 'EM LW__EM THEATRE__EM OPD'],
+                ["Positive tests &uarr;", ['Syphilis Test'], ['aval'], ['Reactive', ""], ["", ""], ["", ""], 'EM LW__EM THEATRE__EM OPD'],
+                ["HepBsAg test done on patients", ['Hepatitis B Test'], ['Hepatitis B'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive tests &uarr;", ['Hepatitis B Test'], ['Hepatitis B'], ['Positive', ""], ["", ""], ["", ""], ""],
+                ["HepCcAg tests done on patients", ['Hepatitis C Test'], ['Hepatitis C'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive tests &uarr;", ['Hepatitis C Test'], ['Hepatitis C'], ['Positive', ""], ["", ""], ["", ""], ""],
+                ["Hcg Pregnacy tests done", ['Pregnancy Test'], ['Pregnancy Test'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positives done &uarr;", ['Pregnancy Test'], ['Pregnancy Test'], ['Positive', ""], ["", ""], ["", ""], ""],
+                ["HIV tests on PEP patients", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positives tests &uarr;", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+            ]
+        ],
+
+        ["Parasitology",
+            [
+                ["Total malaria microscopy tests done", ['Malaria Screening'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive tests &uarr;", ['Malaria Screening'], ['Blood film', 'Malaria Species', 'MRDT'],
+                    ['Positive__+ (1-10 parasites/100 fields)__++ (11-99 parasites/100 field)__+++ (1-10 parasites /field)__++++ (>10 parasites/field)__Plasmodium falciparum__Plasmodium ovale__Plasmodium vivax__Plasmodium malariae__Plasmodium knowlesi', ""],
+                    ["", ""], ["", ""], ""],
+                ["Malaria microscopy in ≤ 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive malaria slides in <= 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Malaria microscopy in > 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive malaria slides in > 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Malaria microscopy in unknown age", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive malaria slides in unknown age", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total MRDTs Done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MRDTs Positives", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MRDTs in <= 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MRDT Positives in <= 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MRDTs In >= 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MRDT Positives in >= 5yrs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total invalid MRDTs tests", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Trypanosome tests", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive tests", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Urine microscopy total", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Schistome Haematobium", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Other urine parasites", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["urine chemistry", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Semen analysis", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["stool microscopy", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["nemotodes ", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Cematodes", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["trematodes", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["other stool parasites", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Filarial worm", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+            ]
+        ],
+
+        ["Chemistry",
+            [
+                ["Blood glucose", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["CSF glucose", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Albumin", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Alkaline Phosphatase(ALP)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Alanine aminotransferase (ALT)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Amylase", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Antistreptolysin O (ASO)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Aspartate aminotransferase(AST)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Bilirubin Total", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Bilirubin Direct", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Calcium", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Chloride", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Cholesterol Total", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Cholesterol LDL", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Cholesterol HDL", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Cholinesterase", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["C Reactive Protein (CRP)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Creatinine", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Creatine Kinase NAC", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Creatine Kinase MB", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Gamma Glutamyl Transferase", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Haemoglobin A1c", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Iron", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Lipase", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Lactate Dehydrogenase (LDH)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Magnesium", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Micro-protein", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Micro-albumin", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Phosphorus", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Potassium", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Rheumatoid Factor", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Sodium", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total Iron Binding Capacity", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Triglycerides", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Urea", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Uric acid", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+            ]
+        ],
+
+        ["Microbiology",
+            [
+                ["Bacterilogy", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of AFB sputum examined", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of new TB cases examined", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["New cases with positive smear", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Pick-up rate", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of TB follow-up patients", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of uncategorised AFB sputum examined", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Gene - Xpert Test Results", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total cartridges used", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MTB Not Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MTB Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Not Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Indeterminate", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Errors /Error Codes", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Invalid", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["No Results", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["CSF & Other Body Fluids", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of CSF samples analysed", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of CSF samples analysed for AFB", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of CSF samples with organisms", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["HVS analysed", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Other swabs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of blood cultures done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive blood cultures", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Other body fluids(pleural, Ascitic,synovial etc)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total number of fluids analysed", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Fluids with organisms", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Cholera cultures done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive cholera samples", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Other stool cultures", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Stool samples with organisms isolated on culture", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of sensitivity tests done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+            ]
+        ],
+        ["MOLECULAR / HIV",
+            [
+                ["DNA-EID samples received", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["DNA-EID samples tests done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["number with positive results", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["VL tests received", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["VL tests done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["VL results with less than 1000 copies per ml", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+            ]
+        ]
+    ];
+
+    row_count = 0;
+
+    function __$(id){
+        return document.getElementById(id);
+    }
+
+    function createTd(html, width, id){
+        var n = document.createElement("td");
+
+        if(html == "&nbsp;"){
+            n.className = "table-cell data-cell data";
+        }else{
+            n.className = "table-cell data-cell";
+        }
+
+        n.innerHTML = html;
+        n.style.width = width + "%";
+        if(id){
+            n.id = id;
+        }
+        return n;
+    }
+    function buildBlock(section, rows){
+        var header = document.createElement("tr");
+        header.className = "table-row header-row";
+        header.colSpan = "6";
+
+        var headerData = document.createElement("td");
+        headerData.colSpan = "6";
+        headerData.className = "table-cell"
+        headerData.innerHTML = section;
+        headerData.style.paddingLeft = "3.6%";
+
+        header.appendChild(headerData);
+
+        __$("table").appendChild(header);
+
+        for(var j = 0; j < rows.length; j++){
+            row_count = row_count + 1;
+            var options = rows[j];
+            var row = document.createElement("tr");
+            row.id = row_count;
+            row.className = "table-row";
+            __$("table").appendChild(row);
+            //Incremental Node
+            row.appendChild(createTd(row_count, 3, null));
+            row.appendChild(createTd(options[0], 45, null));
+            row.appendChild(createTd("&nbsp;", 12, (row_count + "_" + 0)));
+            row.appendChild(createTd("&nbsp;", 12, (row_count + "_" + 1)));
+            row.appendChild(createTd("&nbsp;", 12, (row_count + "_" + 2)));
+            row.appendChild(createTd("&nbsp;", 12, (row_count + "_total")));
+
+            __$("table").appendChild(row);
+        }
+    }
+
+    for(var i = 0; i < map.length; i++){
+        var block = map[i];
+        buildBlock(block[0], block[1]);
+    }
+    //load data
+    total_count = document.getElementsByClassName("data").length;
+    var cc = 0;
+    for(var i = 0; i < map.length; i++){
+        var block = map[i][1];
+        for(var n = 0; n < block.length; n++){
+            var row = block[n];
+            cc = cc + 1;
+            if(row.length != 7) {
+              console.log(row);
+                continue;
+            }
+
+            //["Full Blood Count", ['FBC'], ['aval'], ['aval', null], null, null, null, [0, 0, 0]],
+            var url = "/generic_report_data?display=" + row[0] +
+                    "&test_type=" + row[1].join("__") + "&result_names=" + row[2].join("__") +
+                    "&value=" + row[3][0] + "&value_modifier=" + row[3][1] +
+                    "&min_age=" + row[4][0] + "&min_age_modifier=" + row[4][1] +
+                    "&max_age=" + row[5][0] + "&max_age_modifier=" + row[5][1] +
+                    "&wards=" + row[6] + "&quarter=<%= params[:quarter]%>" +
+                    "&year=<%= params[:year]%>";
+
+            ajaxify(cc, url);
+        }
+    }
+
+    function ajaxify(row_num, url){
+        jQuery.ajax(
+                {
+                    url: url,
+                    success: function(data){
+                        data = JSON.parse(data);
+                        __$(row_num+"_"+0).innerHTML = data[0];
+                        __$(row_num+"_"+1).innerHTML = data[1];
+                        __$(row_num+"_"+2).innerHTML = data[2];
+                        __$(row_num+"_total").innerHTML = (data[0] + data[1] + data[2]);
+                        loaded += 4;
+                        __$("progress-color").style.width = ((loaded/total_count)*100) + "%";
+                    },
+                    error: function(e){
+                        __$(row_num+"_"+0).innerHTML = "<span style='color:red'>!</span>";
+                        __$(row_num+"_"+1).innerHTML = "<span style='color:red'>!</span>";
+                        __$(row_num+"_"+2).innerHTML = "<span style='color:red'>!</span>";
+                        __$(row_num+"_total").innerHTML = "<span style='color:red'>!</span>";
+                        loaded += 4;
+
+                        __$("progress-color").style.width = ((loaded/total_count)*100) + "%";
+                    }
+                }
+        )
+    }
+
+    var row1 = __$("tbl").getElementsByTagName("tr")[0].getElementsByTagName("th");
+    var row2 = __$("table").getElementsByClassName("data-cell");
+
+    jQuery(__$("tbl")).css({
+        width: (jQuery(__$("table")).width() + "px")
+    });
+
+    //jQuery(__$("progress-bar")).css({
+       // width: (jQuery(__$("tbl")).width() + "px")
+    //});
+
+
+</script>
+
+

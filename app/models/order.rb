@@ -14,7 +14,11 @@ class Order < CouchRest::Model::Base
     r = {}
     result_names = self['results'].keys
     result_names.each do |rn |
-      ts = self['results'][rn].keys.last
+      ts = self['results'][rn].keys
+      ts.each do |t|
+        ts = ts - [t] if self['results'][rn][t]['results'] == []
+      end
+      ts = ts.last
       next if ts.blank?
       r[rn] =  self['results'][rn][ts]
     end
