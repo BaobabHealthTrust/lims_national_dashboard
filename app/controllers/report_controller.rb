@@ -1,3 +1,4 @@
+
 class ReportController < ApplicationController
   def reports
 
@@ -56,12 +57,17 @@ class ReportController < ApplicationController
         raise "Missing Quarter for Year #{params[:year]}".to_s
     end
     map = [0, 0, 0]
+
     #[display_name, [test_types], [result_types], [value, value_modifiers], [min_age, modifier], [max_age, modifier], other, count]
     options = []
     params[:test_type] = params[:test_type].split("__")
     params[:result_names] = params[:result_names].gsub(/CD4\spercent/i, "CD4 %").split("__")
     params[:wards] = params[:wards].split("__")
 
+    if params[:min_age].to_i == -1 || params[:max_age].to_i == -1
+      params[:unknown_age] = true
+    end
+    puts params[:display]
     $data.each do |order|
       results = order.results || {}
       result_names = results.keys.collect{|r| r.strip}
@@ -71,6 +77,7 @@ class ReportController < ApplicationController
       next if (test_type.blank? && params[:test_type][0] != "aval")
       measures = results[test_type]["results"]
       r_names = (measures.keys & params[:result_names]).first rescue nil
+
       next if r_names.blank? && params[:result_names][0] != "aval"
 
       ward = (params[:wards] & [order["order_location"]]) rescue nil
@@ -81,8 +88,11 @@ class ReportController < ApplicationController
       if params[:min_age].present? || params[:max_age].present?
         age = -1
         next if date_of_birth.blank?
-        (date_of_birth = date_of_birth.to_date) rescue (next) # bad date format e.g 0000-00-00
-        age = ((order['date_time'].to_date - date_of_birth)/31557600).round # year
+        age = ((order['date_time'].to_time - date_of_birth.to_time)/31557600) rescue -1 # year quick conversion
+        #run age filters
+        next if params[:unknown_age] && age > -1
+        next if !params[:min_age].blank? && !age.between?(params[:min_age].to_i, 120)
+        next if !params[:max_age].blank? && !age.between?(0, params[:max_age].to_i)
       end
 
       if(order['date_time'].to_i.between?(startA.to_i, endA.to_i))
@@ -95,31 +105,48 @@ class ReportController < ApplicationController
         result_index = 2
       end
 
+      value_check = measures[r_names] rescue nil
+      next if (value_check == "0" || value_check == 0)
+
       if params[:value] == "aval" && !measures.blank?
         map[result_index] += 1
         next
       end
 
-      if !params[:value].blank? && params[:value] != "aval"
+      if params[:value] != "aval"
         value = nil
         value = params["value"].split("__") & measures.values if r_names.blank?
-        value = measures[r_names] if value.blank?
 
-        next if value.blank?
-        if !params[:value_modifier].blank?
-          value = value.scan(/\d+\.\d+/).first rescue ""
-          next if value.blank?
-          v = eval("#{value} #{params["value_modifier"]} #{params[:value]}")
-          if v == true
-            map[result_index] += 1
-            next
-          end
-        else
-          if value.strip == params[:value]
+        if !value.blank?
+          map[result_index] += 1
+          next
+        end
+
+        value = measures[r_names]
+        if !params[:value_modifier].blank? && params[:value_modifier].match(/^has/) && !value.blank?
+
+          argv = params[:value_modifier].split(" ").last
+          arr_check = value.scan(argv)
+          if arr_check.length > 0
             map[result_index] += 1
             next
           end
         end
+
+        if params[:value_modifier].match(/\<|\>/) && !value.blank?
+          value = value.scan(/\d\.\d/).first if value.match(/\d\.\d/)
+          v = eval("#{value} #{params["value_modifier"]}") rescue ""
+          if v == true || !v.blank?
+            map[result_index] += 1
+            next
+          end
+        end
+
+        if value == params[:value]
+          map[result_index] += 1
+          next
+        end
+
       end
 
       if params[:result_names][0] == "aval" && !results[test_type].blank?
