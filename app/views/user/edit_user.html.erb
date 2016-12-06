@@ -1,0 +1,95 @@
+
+<div class="panel panel-info" style="width: 70%;margin-left: 2%;" id="editUser">
+  <div class="panel-heading">
+    <h3 class="panel-title">Edit User</h3>
+  </div>
+  <div class="panel-body">
+    <form class="form-horizontal" method="post" action="/user/save_edit" onsubmit="return verify_form()">
+      <fieldset>
+        <div class="form-group" id="usernameGroup">
+          <label for="inputEmail" class="col-lg-2 control-label">Username</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="username" value='<%= @user.username %>' name="username" placeholder="Username" type="text">
+          </div>
+        </div>
+
+        <div class="form-group" id="passwordGroup">
+          <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="password" name="password" placeholder="Password" type="password">
+          </div>
+        </div>
+
+        <div class="form-group" id="confirmPasswordGroup">
+          <label for="inputPassword" class="col-lg-2 control-label">Confirm Password</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="repassword" placeholder="Confirm Password" type="password">
+          </div>
+        </div>
+        <div class="form-group" id="roleGroup">
+          <label for="select" class="col-lg-2 control-label">User Role</label>
+          <div class="col-lg-10">
+            <select class="form-control" id="user_role" name="user_role" >
+              <option>Other</option>
+              <option>Administrator</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2">
+            <button class="btn btn-danger btn-sm" onmousedown="window.location= '/user/edit'">Cancel</button>
+            <button type="submit" class="btn btn-success btn-sm" >Save</button>
+          </div>
+        </div>
+      </fieldset>
+        <input type="hidden" name="user_name_old" value='<%= @user.username %>'>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+    <!--
+    function verify_form() {
+
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
+        var password2 = document.getElementById('repassword').value;
+        var role = document.getElementById("user_role").value;
+
+        if (username.trim() == "")
+        {
+            document.getElementById("usernameGroup").setAttribute("class", "form-group has-error");
+        }
+        else if (password.trim() == "")
+        {
+            document.getElementById("passwordGroup").setAttribute("class", "form-group has-error")
+        }
+        else if (password2.trim() == "")
+        {
+            document.getElementById("confirmPasswordGroup").setAttribute("class", "form-group has-error")
+        }
+        else if (password != password2)
+        {
+            document.getElementById("passwordGroup").setAttribute("class", "form-group has-error")
+            document.getElementById("confirmPasswordGroup").setAttribute("class", "form-group has-error")
+        }
+        else
+        { /*
+         jQuery.ajax({
+         url:  "/user/save?password=" + password + "&username=" + username +"&role=" +role,
+         type:"POST",
+         success: function(msg){
+
+         },
+         error: function(){
+
+         }
+
+         });*/
+            return true;
+        }
+        return false;
+    }
+    //-->
+</script>
+

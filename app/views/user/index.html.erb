@@ -1,0 +1,303 @@
+<link rel="stylesheet" type="text/css" href="/stylesheets/jquery.alerts.css" />
+
+<div id="admin" style="width: 100%; height: 92vh;">
+<div class="container-fluid text-xs-center" style="border-bottom: 1px solid black;border-top: 2px solid darkred;background: #d3d3d3; margin-bottom: 15px;">
+  <h4>Admin Setup</h4>
+</div>
+
+<div class="row" style="width: 100%;">
+  <div class="col-lg-2" style="margin-left: 10px; width: 15%;">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Actions</h3>
+      </div>
+      <div class="panel-body">
+        <div class="btn-group-vertical" style="width: 95%;margin-left: auto !important;margin-right: auto !important;">
+          <button onmousedown="switchPartial('add')" class="btn btn-default">Add User</button>
+          <button onmousedown="switchPartial('index')" class="btn btn-default">Edit Users</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-9" style="width: 83%;">
+    <div class="well well-lg">
+
+      <div class="panel panel-primary" id="userList">
+        <div class="panel-heading">
+          <h3 class="panel-title">User List</h3>
+        </div>
+        <div class="panel-body">
+          <table id="users" class="table table-striped table-hover ">
+            <thead>
+            <tr>
+              <th>Username</th>
+              <th>User Role</th>
+              <th>Last Updated On</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% (@users || []).each do |user| %>
+                <tr>
+                  <td><%= user.username %></td>
+                  <td><%= user.user_role  rescue ""%></td>
+                  <td><%= user.updated_at.to_date.strftime("%d %B %Y") %></td>
+                  <td>
+                    <button onmousedown="delete_user(<%= user.id%>)" class="btn btn-danger btn-sm <%= (session[:user_id] == user.id)? 'disabled' : '' %>" >Void</button>
+                    <button onmousedown="loadEdit('<%= user.username %>')" class="btn btn-success btn-sm">Edit</button>
+                  </td>
+                </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel panel-primary" style="display: none;" id="addUser">
+        <div class="panel-heading">
+          <h3 class="panel-title">Add User</h3>
+        </div>
+        <div class="panel-body">
+
+          <div class= "alert alert-dismissable alert-success" id="addMessageContainer" style="display: none;">
+            <strong><span id="addMessage"></span></strong>
+          </div>
+
+          <form class="form-horizontal" method="post" action="/user/save" onsubmit="return false">
+            <fieldset>
+              <div class="form-group" id="addUsernameGroup">
+                <label for="inputEmail" class="col-lg-2 control-label">Username</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="addUsername" name="username" placeholder="Username" type="text">
+                </div>
+              </div>
+
+              <div class="form-group" id="addPasswordGroup">
+                <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="addPassword" name="password" placeholder="Password" type="password">
+                </div>
+              </div>
+
+              <div class="form-group" id="addConfirmPasswordGroup">
+                <label for="inputPassword" class="col-lg-2 control-label">Confirm Password</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="addRepassword" placeholder="Confirm Password" type="password">
+                </div>
+              </div>
+              <div class="form-group" id="roleGroup">
+                <label for="select" class="col-lg-2 control-label">User Role</label>
+                <div class="col-lg-10">
+                  <select class="form-control" id="addUserRole" name="user_role" >
+                    <option>Other</option>
+                    <option>Administrator</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-lg-10 col-lg-offset-2">
+                  <button class="btn btn-danger btn-sm" onmousedown="window.location= '/'">Cancel</button>
+                  <button class="btn btn-success btn-sm" onmousedown="verify_form('add')">Save</button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel panel-primary" style="display: none;" id="editUser">
+        <div class="panel-heading">
+          <h3 class="panel-title">Edit User</h3>
+        </div>
+        <div class="panel-body">
+          <div class= "alert alert-dismissable alert-success" id="editMessageContainer" style="display: none;">
+            <strong><span id="editMessage"></span></strong>
+          </div>
+
+          <form class="form-horizontal" method="post" action="/user/save_edit" onsubmit="return verify_form('edit')">
+            <fieldset>
+              <div class="form-group" id="editUsernameGroup">
+                <label for="inputEmail" class="col-lg-2 control-label">Username</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="editUsername"  name="username" placeholder="Username" type="text">
+                </div>
+              </div>
+
+              <div class="form-group" id="editPasswordGroup">
+                <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="editPassword" name="password" placeholder="Password" type="password">
+                </div>
+              </div>
+
+              <div class="form-group" id="editConfirmPasswordGroup">
+                <label for="inputPassword" class="col-lg-2 control-label">Confirm Password</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="editRepassword" placeholder="Confirm Password" type="password">
+                </div>
+              </div>
+              <div class="form-group" id="roleGroup">
+                <label for="select" class="col-lg-2 control-label">User Role</label>
+                <div class="col-lg-10">
+                  <select class="form-control" id="editUserRole" name="user_role" >
+                    <option>Other</option>
+                    <option>Administrator</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-lg-10 col-lg-offset-2">
+                  <button class="btn btn-danger btn-sm" onmousedown="switchPartial('index')">Cancel</button>
+                  <button type="submit" class="btn btn-success btn-sm" >Save</button>
+                </div>
+              </div>
+            </fieldset>
+            <input type="hidden" name="user_name_old" id="user_name_old" >
+          </form>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+</div>
+</div>
+
+
+<script type="text/javascript" language="javascript" src="/javascripts/jquery-1.8.2.js"></script>
+<script type="text/javascript" language="javascript" src="/javascripts/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="/javascripts/jquery.alerts.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+    $('#users').dataTable({
+        "aaSorting": [[ 0, "asc" ]],
+        'iDisplayLength': 7,
+        "bLengthChange": false,
+        "bFilter": false
+    });
+
+    function delete_user(id)
+    {
+        jConfirm("Are you sure you want to void this user? ","Confirmation Dialog",function(r)
+        {
+            if (r)
+            {
+                jQuery.ajax({
+                    url:  "/user/delete?user_id=" + id ,
+                    type:"POST",
+                    success: function(msg){
+                        jAlert(msg, "User Deletion Outcome")
+                        window.location = "/user/index"
+                    },
+                    error: function(){
+                        jAlert("Could not delete user", "Unsuccessful!");
+                    }
+
+                });
+            }
+        })
+    }
+
+    function loadEdit(username){
+        clear("edit")
+        document.getElementById('editUsername').value = username;
+        document.getElementById("user_name_old").value = username;
+        switchPartial('edit');
+    }
+</script>
+
+<script type="text/javascript">
+    <!--
+    function switchPartial(task){
+
+        switch (task){
+            case "add":
+                document.getElementById("addUser").style.display = "block";
+                document.getElementById("userList").style.display = "none";
+                document.getElementById("editUser").style.display = "none";
+                document.getElementById("addMessageContainer").style.display = "none";
+                clear(task)
+                break;
+            case "index":
+                document.getElementById("addUser").style.display = "none";
+                document.getElementById("userList").style.display = "block";
+                document.getElementById("editUser").style.display = "none";
+                break;
+            case "edit":
+                document.getElementById("addUser").style.display = "none";
+                document.getElementById("userList").style.display = "none";
+                document.getElementById("editUser").style.display = "block";
+                break;
+        }
+
+    }
+    function verify_form(type) {
+
+        var username = document.getElementById(type.toString()+'Username').value;
+        var password = document.getElementById(type.toString()+'Password').value;
+        var password2 = document.getElementById(type.toString()+'Repassword').value;
+        var role = document.getElementById(type.toString()+"UserRole").value;
+
+        if (username.trim() == "")
+        {
+            document.getElementById(type.toString()+"UsernameGroup").setAttribute("class", "form-group has-error");
+        }
+        else if (password.trim() == "")
+        {
+            document.getElementById(type.toString()+"PasswordGroup").setAttribute("class", "form-group has-error")
+        }
+        else if (password2.trim() == "")
+        {
+            document.getElementById(type.toString()+"ConfirmPasswordGroup").setAttribute("class", "form-group has-error")
+        }
+        else if (password != password2)
+        {
+            document.getElementById(type.toString()+"PasswordGroup").setAttribute("class", "form-group has-error")
+            document.getElementById(type.toString()+"ConfirmPasswordGroup").setAttribute("class", "form-group has-error")
+        }
+        else
+        {
+            if(type  == "add")
+            {
+                var url = "/user/save?password=" + password + "&username=" + username +"&user_role=" +role
+            }
+            else{
+                var url = "/user/save_edit?password=" + password + "&username=" + username +"&user_role=" +
+                        role +"&user_name_old=" + document.getElementById("user_name_old").value
+            }
+         jQuery.ajax({
+         url:  url,
+         type:"POST",
+         success: function(msg){
+            result = JSON.parse(msg);
+            document.getElementById(type.toString()+"Message").innerHTML = result[0];
+            document.getElementById(type.toString()+"MessageContainer").style.display = "block";
+            if (result[1] == null)
+            {
+                document.getElementById(type.toString()+"MessageContainer").setAttribute("class", "alert alert-dismissable alert-danger");
+            }
+            else
+            {
+                clear(type);
+                document.getElementById(type.toString()+"MessageContainer").setAttribute("class","alert alert-dismissable alert-success");
+            }
+             window.location = "/user/index"
+         },
+         error: function(){
+
+         }
+
+         });
+        }
+        return false;
+    }
+
+    function clear(task){
+        document.getElementById(task.toString()+'Username').value = ""
+        document.getElementById(task.toString()+'Password').value = ""
+        document.getElementById(task.toString()+'Repassword').value = ""
+    }
+    //-->
+</script>
+

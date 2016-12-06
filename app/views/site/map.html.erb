@@ -1,0 +1,142 @@
+<html>
+<head>
+  <title>SVG</title>
+</head>
+<body>
+<div style="text-align: center; font-size: 12px; font-style: italic;"><%= (@label.nil? ? ((!params["cat"].nil? and params["cat"] == "Site") ? "[ Select site ]" : "[ Select region ]") : ((!params["cat"].nil? and params["cat"] == "Site") ? "" : "Click site location on the map")) %></div>
+<div id="main" style="padding: 20px; text-align: center;"></div>
+
+<script src="/javascripts/d3.js" charset="utf-8"></script>
+<script type="text/javascript">
+
+    var loader = d3.xml("/images/<%= @region.downcase %>.svg", function(xml) {
+        document.getElementById("main").appendChild(xml.documentElement);
+
+        d3.select("#region");
+
+        d3.select("#regionpath")
+                .on("mousemove", mousemove)
+                .on("mousedown", mousedown);
+
+        <% if !@x.nil? and !@y.nil? %>
+        var x = "<%= @x %>";
+        var y = "<%= @y %>";
+
+        var circle = d3.select("#circle");
+
+        if(circle[0][0] != null){
+
+            circle.attr("cx", x)
+                    .attr("cy", y)
+                    .on("mouseover", function(){d3.select("#circle").attr("r", 10); return tooltip.style("visibility", "visible");})
+                    .on("mousemove", function(){return tooltip.style("top",
+                                    (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                    .on("mouseout", function(){d3.select("#circle").attr("r", 8); return tooltip.style("visibility", "hidden");});
+
+        } else {
+
+            d3.select("#region").append("circle")
+                    .style("stroke", "white")
+                    .style("stroke-width", "2px")
+                    .style("fill", "red")
+                    .attr("r", 8)
+                    .attr("cx", x)
+                    .attr("cy", y)
+                    .attr("id", "circle")
+                    .on("mouseover", function(){d3.select("#circle").attr("r", 10); return tooltip.style("visibility", "visible");})
+                    .on("mousemove", function(){return tooltip.style("top",
+                                    (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px").text(getSiteInfo());})
+                    .on("mouseout", function(){d3.select("#circle").attr("r", 8); return tooltip.style("visibility", "hidden");});
+
+        }
+        <% end %>
+    });
+
+    var tooltip = d3.select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("background", "#f6f3d7")
+            .style("padding", "5px")
+            .style("border", "1px solid #000")
+            .style("border-radius", "5px")
+            .text("Tooltip");
+
+    function getSiteInfo(){
+        var result = "Unknown";
+
+        if(window.parent.document.getElementById("sitename")){
+            result = window.parent.document.getElementById("sitename").value;
+        }
+
+        return result;
+    }
+
+    function mousemove(d, i) {
+        //console.log(d3.mouse(this));
+    }
+
+    function mousedown(d, i) {
+        var points = d3.mouse(this);
+
+        <% if !(!params["cat"].nil? and params["cat"] == "Site") %>
+
+        <% case @region.downcase
+          when "centre" %>
+
+        var x = (points[0] - ((d3.select("#region")[0][0]).getBoundingClientRect().width * 0.73));
+        var y = (points[1] - ((d3.select("#region")[0][0]).getBoundingClientRect().height * 0.76));
+
+        <% when "north" %>
+
+        var x = (points[0] - ((d3.select("#region")[0][0]).getBoundingClientRect().width * 0.34));
+        var y = (points[1] - ((d3.select("#region")[0][0]).getBoundingClientRect().height * 0.77));
+
+        <% when "south" %>
+
+        var x = (points[0] - ((d3.select("#region")[0][0]).getBoundingClientRect().width * 0.39));
+        var y = (points[1] - ((d3.select("#region")[0][0]).getBoundingClientRect().height * 0.98));
+
+        <% end %>
+
+        if(window.parent.document.getElementById("x")){
+            window.parent.document.getElementById("x").value = x;
+        }
+
+        if(window.parent.document.getElementById("y")){
+            window.parent.document.getElementById("y").value = y;
+        }
+
+        if (parent.task == "edit")
+        {
+            window.parent.document.getElementById("xEdit").value = x;
+            window.parent.document.getElementById("yEdit").value = y;
+        }
+        var circle = d3.select("#circle");
+
+        if(circle[0][0] != null){
+
+            circle.attr("cx", x);
+            circle.attr("cy", y);
+
+        } else {
+
+            d3.select("#region").append("circle")
+                    .style("stroke", "white")
+                    .style("stroke-width", "2px")
+                    .style("fill", "red")
+                    .attr("r", 8)
+                    .attr("cx", x)
+                    .attr("cy", y)
+                    .attr("id", "circle");
+
+        }
+
+        <% end %>
+    }
+
+</script>
+
+</body>
+</html>

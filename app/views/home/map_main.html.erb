@@ -1,0 +1,140 @@
+<html>
+<head>
+  <title>SVG</title>
+</head>
+<body onload="resizeMap()" style="margin: 0px; padding: 0px; padding-left: 35px;">
+<div id="main" style="padding: 0px; text-align: center; overflow: hidden !important;"></div>
+
+<script src="/javascripts/jquery.js" charset="utf-8"></script>
+<script src="/javascripts/d3.js" charset="utf-8"></script>
+<script type="text/javascript">
+
+    var zoomlevel = 1;
+    var currentSite = "";
+    var alerts = {};
+    var sitesErrors = {};
+
+
+
+    var loader = d3.xml("/images/Malawi.svg", function(xml) {
+        document.getElementById("main").appendChild(xml.documentElement);
+
+
+        <% @sites.each do |site| %>
+
+        <%
+
+          refPoints = [-9.331537, -17.158189, 32.674051, 35.969950];
+          offsets = [10, 295, 10, 710];
+          x = site['x'].to_f
+          y = site['y'].to_f
+
+         x = ((offsets[1] - offsets[0]) * ((x.abs - refPoints[2].abs) / (refPoints[3].abs - refPoints[2].abs)))
+
+         y = ((offsets[3] - offsets[2]) * ((y.abs - refPoints[0].abs) / (refPoints[1].abs - refPoints[0].abs)))
+
+        %>
+
+        var color = "green";
+        if(alerts[ "<%= site['name']%>"] == "normal"){
+            color = "green";
+        }else if (alerts[ "<%= site['name']%>"] == "average"){
+            color = "yellow";
+        }else if (alerts[ "<%= site['name']%>"] == "urgent") {
+            color = "red";
+        }
+
+        d3.select("#malawi").append("circle")
+                .style("stroke", "white")
+                .style("stroke-width", "1px")
+                .style("fill", color)
+                .style("margin", "auto")
+                .attr("r", 6)
+                .attr("class", "circle")
+                .attr("cx", "<%= x %>")
+                .attr("cy", "<%= y %>")
+                .attr("color", color)
+                .attr("id", "<%= site['sitecode'].downcase %>")
+                .attr("tag", "<%= site['name'] %>")
+                .on("mousedown", function(){
+                       // window.parent.location = "/report/site_summary?site_name=" + this.getAttribute("tag")
+                })
+                .on("mouseover", function(){
+
+                    d3.select(".circle").attr("r", 7);
+                    d3.select("#" + this.id).attr("r", 12).style("z-index", "100");
+
+                    return tooltip.style("visibility", "visible");
+                })
+                .on("mousemove", function(){
+                    return tooltip.style("top",
+                                    (d3.event.pageY-10)+"px")
+                            .style("left", (d3.event.pageX+20)+"px")
+                            .text(getSiteInfo(this.id));
+                })
+                .on("mouseout", function(){
+                    d3.select("#" + this.id).attr("r", 7).style("z-index", "10")
+                            .style("fill", this.getAttribute("color"));
+                    return tooltip.style("visibility", "hidden");
+                });
+
+        <% end %>
+    });
+
+    var tooltip = d3.select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("background", "#f6f3d7")
+            .style("padding", "5px")
+            .style("border", "1px solid #000")
+            .style("border-radius", "5px")
+            .text("Tooltip");
+
+    function getSiteInfo(id){
+        var result = id;
+
+        if(document.getElementById(id)){
+            result = document.getElementById(id).getAttribute("tag");
+            if (sitesErrors[result]){
+                result = result + ",   " + sitesErrors[result] + " error(s)";
+            }else{
+                result = result + ",  0 error(s)";
+            }
+        }
+
+        return result;
+    }
+
+    function resizeMap(){
+        zoomlevel = 1;
+
+        d3.select('#region').attr('transform','scale(' + zoomlevel + ')')
+                .style("background", "white")
+
+    }
+
+    function updateSite(){
+        jQuery.ajax({
+            url: "/site/get_current_site",
+            type: "GET",
+            success: function(data){
+                 currentSite = JSON.parse(data);
+
+                if (currentSite.length > 0) {
+
+                }
+
+            }
+        })
+
+        setTimeout("updateSite()", 1500);
+    }
+
+        setTimeout("updateSite()", 1500);
+
+</script>
+
+</body>
+</html>

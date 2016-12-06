@@ -1,0 +1,168 @@
+
+<style>
+    body{
+        padding-top: 0px !important;
+    }
+</style>
+
+<div class="panel panel-primary" id="userList">
+  <div class="panel-heading">
+    <h3 class="panel-title">Edit Site</h3>
+  </div>
+  <div class="panel-body">
+    <div class= "alert alert-dismissable alert-success" id="messageContainerEdit" style="display: none;">
+      <strong><span id="messageEdit"></span></strong>
+    </div>
+
+    <form class="form-horizontal" id="site-form" method="post" action="/site/update_site" onsubmit="return false">
+      <fieldset>
+        <div class="form-group" >
+          <label for="name" class="col-lg-2 control-label">Select Site</label>
+          <div class="col-lg-10">
+            <select id="sites" name="sites" class="form-control" placeholder="Sites" required="" onchange="changeSite(this.value)" >
+              <option value="">[ - Select site - ]</option>
+              <% (@sites_enabled || []).each do |site| %>
+                <option onselect="" value="<%= site.name %>"><%= site.name %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+
+
+        <div class="form-group" id="codeGroupEdit">
+          <label for="editCode" class="col-lg-2 control-label">Site Code</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="codeEdit" name="code" placeholder="Site code">
+          </div>
+        </div>
+
+        <div class="form-group" id="hostGroupEdit">
+          <label for="editHost" class="col-lg-2 control-label">Host Address</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="hostEdit" name="host" placeholder="Host Address" >
+          </div>
+        </div>
+
+        <div class="form-group" id="portGroupEdit">
+          <label for="editPort" class="col-lg-2 control-label">Application Port</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="portEdit" name="port" placeholder="Application Port" >
+          </div>
+        </div>
+
+        <input name="x" class="form-control" id="xEdit" required="" value="" type="hidden" />
+        <input name="y" class="form-control" id="yEdit" required="" value="" type="hidden" />
+
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2" style="margin-top: 5px;">
+            <button class="btn btn-danger btn-sm" onmousedown="window.location= '/'">Cancel</button>
+            <button class="btn btn-success btn-sm" onmousedown="checkForm()">Save</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+    <!--
+
+    var sites = {}
+    <% @sites_enabled.each do |site| %>
+        sites["<%= site.name %>"] = {"name": '<%= site.name %>', "host": '<%= site.host %>',
+            "port": '<%= site.port %>', "x": '<%= site.x %>', "y":'<%= site.y %>' ,
+            "code": '<%= site.code %>',"region":'<%= site.region %>'}
+    <% end %>
+
+    function checkForm()
+    {
+        var y = document.getElementById('yEdit').value
+        var x = document.getElementById('xEdit').value
+        var oldSite = document.getElementById('sites').value
+        //var site = document.getElementById('siteEdit').value
+        var host = document.getElementById('hostEdit').value
+        var code = document.getElementById('codeEdit').value
+        var port = document.getElementById('portEdit').value
+        //var region = document.getElementById('regionEdit').value
+
+        if (code.trim() == "")
+        {
+            document.getElementById('codeGroupEdit').setAttribute("class", "form-group has-error")
+            document.getElementById('codeEdit').focus();
+        }
+        else if (host.trim() == "")
+        {
+            document.getElementById('hostGroupEdit').setAttribute("class", "form-group has-error")
+            document.getElementById('hostEdit').focus();
+        }
+        else if (/^\d+\.\d+\.\d+\.\d+/.test(host) == false)
+        {
+            document.getElementById('hostGroupEdit').setAttribute("class", "form-group has-error")
+            document.getElementById('hostEdit').focus();
+
+        }
+        else if (port.trim() == "")
+        {
+            document.getElementById('portGroupEdit').setAttribute("class", "form-group has-error")
+            document.getElementById('portEdit').focus();
+        }
+        else if (port != parseInt(port))
+        {
+            document.getElementById('portGroupEdit').setAttribute("class", "form-group has-error")
+            document.getElementById('portEdit').focus();
+        }
+        else
+        {
+            data = "?site=" +oldSite +"&port=" + port + "&host=" + host +"&x=" + x
+                    + "&y=" + y +"&code=" + code;
+            jQuery.ajax({
+                url:  "/site/update_site" + data,
+                type:"POST",
+                success: function(msg){
+                    result = JSON.parse(msg);
+                    document.getElementById("messageEdit").innerHTML = result[0];
+                    document.getElementById("messageContainerEdit").style.display = "block";
+                    if (result[1] == null)
+                    {
+                        document.getElementById("messageContainerEdit").setAttribute("class", "alert alert-dismissable alert-danger");
+                    }
+                    else
+                    {
+                        document.getElementById("messageContainerEdit").setAttribute("class","alert alert-dismissable alert-success");
+                        //document.getElementById('site').value = ""
+                        document.getElementById('host').value = ""
+                        document.getElementById('code').value = ""
+                        document.getElementById('port').value = ""
+                    }
+                    window.location.hash = "#messageContainerEdit"
+                    setTimeout(window.location = "/site/index", 30000)
+                },
+                error: function(){
+                    document.getElementById("messageContainerEdit").setAttribute("class", "alert alert-dismissable alert-danger");
+                    document.getElementById("messageEdit").innerHTML = "Failed to create site"
+                    window.location.hash = "#messageContainerEdit"
+                }
+
+            });
+        }
+        return false;
+    }
+
+    function changeRegion(region){
+        document.getElementById("mapEdit").setAttribute("src", "/map?region=" + region.toLowerCase().trim());
+    }
+
+    function changeSite(name)
+    {
+        //console.log(name    )
+        //document.getElementById('regionEdit').value = sites[name]["region"]
+        //document.getElementById('siteEdit').value = sites[name]["name"]
+        document.getElementById('hostEdit').value = sites[name]["host"]
+        document.getElementById('codeEdit').value = sites[name]["code"]
+        document.getElementById('portEdit').value = sites[name]["port"]
+        document.getElementById('yEdit').value = sites[name]["y"]
+        document.getElementById('xEdit').value = sites[name]["x"]
+    }
+
+    //-->
+</script>

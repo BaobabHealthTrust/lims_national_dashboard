@@ -1,0 +1,158 @@
+
+<style>
+    body{
+        padding-top: 0px !important;
+    }
+</style>
+
+<div class="panel panel-primary" id="userList">
+  <div class="panel-heading">
+    <h3 class="panel-title">Add Site</h3>
+  </div>
+  <div class="panel-body">
+    <div class= "alert alert-dismissable alert-success" id="messageContainer" style="display: none;">
+      <strong><span id="message"></span></strong>
+    </div>
+
+      <form class="form-horizontal" id="site-form" method="post" action="/site/save_site" onsubmit="return false">
+        <fieldset>
+        <div class="form-group" id="siteGroup">
+            <label for="inputName" class="col-lg-2 control-label">Site Name</label>
+            <div class="col-lg-10">
+              <%= select_tag("site", options_for_select([""] + @sites.map(&:name).sort),
+                             {:class =>'chzn-select form-control',
+                              :required => '',
+                              :name => 'site'
+                             })
+              %>
+            </div>
+        </div>
+
+          <div class="form-group" id="codeGroup">
+            <label for="inputCode" class="col-lg-2 control-label">Site Code</label>
+            <div class="col-lg-10">
+              <input class="form-control" id="code" name="code" placeholder="Site code">
+            </div>
+          </div>
+
+        <div class="form-group" id="hostGroup">
+          <label for="inputHost" class="col-lg-2 control-label">Host Address</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="host" name="host" placeholder="Host Address" >
+          </div>
+        </div>
+
+        <div class="form-group" id="portGroup">
+            <label for="inputPort" class="col-lg-2 control-label">Application Port</label>
+            <div class="col-lg-10">
+              <input class="form-control" id="port" name="port" placeholder="Application Port" >
+            </div>
+        </div>
+
+
+          <input name="x" class="form-control" id="x" required="" value="" type="hidden" />
+          <input name="y" class="form-control" id="y" required="" value="" type="hidden" />
+
+          <div class="form-group">
+            <div class="col-lg-10 col-lg-offset-2" style="margin-top: 5px;">
+              <button class="btn btn-danger btn-sm" onmousedown="window.location= '/'">Cancel</button>
+              <button class="btn btn-success btn-sm" onmousedown="verify_form('add')">Save</button>
+            </div>
+          </div>
+        </fieldset>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  <!--
+
+  function verify_form()
+  {
+      var y = document.getElementById('y').value
+      var x = document.getElementById('x').value
+      var site = document.getElementById('site').value
+      var host = document.getElementById('host').value
+      var code = document.getElementById('code').value
+      var port = document.getElementById('port').value
+
+
+      if (site.trim() == "")
+      {
+          document.getElementById('siteGroup').setAttribute("class", "form-group has-error")
+          document.getElementById('site').focus();
+      }
+      else if (code.trim() == "")
+      {
+          document.getElementById('codeGroup').setAttribute("class", "form-group has-error")
+          document.getElementById('code').focus();
+      }
+      else if (host.trim() == "")
+      {
+          document.getElementById('hostGroup').setAttribute("class", "form-group has-error")
+          document.getElementById('host').focus();
+      }
+      else if (/^\d+\.\d+\.\d+\.\d+/.test(host) == false)
+      {
+          document.getElementById('hostGroup').setAttribute("class", "form-group has-error")
+          document.getElementById('host').focus();
+
+      }
+      else if (port.trim() == "")
+      {
+          document.getElementById('portGroup').setAttribute("class", "form-group has-error")
+          document.getElementById('port').focus();
+      }
+      else if (port != parseInt(port))
+      {
+          document.getElementById('portGroup').setAttribute("class", "form-group has-error")
+          document.getElementById('port').focus();
+      }
+      else
+      {
+          data = "?site=" +site +"&port=" + port + "&host=" + host +"&x=" + x + "&y=" + y +"&code=" + code
+          jQuery.ajax({
+              url:  "/site/save_site" + data,
+              type:"POST",
+              success: function(msg){
+                  result = JSON.parse(msg);
+                  document.getElementById("message").innerHTML = result[0];
+                  document.getElementById("messageContainer").style.display = "block";
+                  if (result[1] == null)
+                  {
+                      document.getElementById("messageContainer").setAttribute("class", "alert alert-dismissable alert-danger");
+                  }
+                  else
+                  {
+                      document.getElementById("messageContainer").setAttribute("class","alert alert-dismissable alert-success");
+                      document.getElementById('site').value = ""
+                      document.getElementById('host').value = ""
+                      document.getElementById('code').value = ""
+                      document.getElementById('port').value = ""
+                  }
+                  window.location.hash = "#messageContainer"
+                  window.location = "/site/index"
+              },
+              error: function(){
+                  document.getElementById("messageContainer").setAttribute("class", "alert alert-dismissable alert-danger");
+                  document.getElementById("message").innerHTML = "Failed to create site"
+                  window.location.hash = "#messageContainer"
+              }
+
+          });
+      }
+      return false;
+  }
+  /*
+  jQuery.validator.addMethod("host", function(value, element) {
+      return this.optional(element) || /^\d+\.\d+\.\d+\.\d+/.test(value);
+  }, "Not a valid IP address.");
+
+    function switchRegion(region){
+        document.getElementById("map").setAttribute("src", "/map?region=" + region.toLowerCase().trim());
+    }
+
+*/
+
+  //-->
+</script>

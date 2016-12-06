@@ -1,0 +1,98 @@
+<html>
+<head>
+  <%= javascript_include_tag 'jquery' %>
+  <link href="/stylesheets/login.css" rel="stylesheet" type="text/css" media="screen" />
+
+  <link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="/stylesheets/bootswatch.css" />
+
+<script type="text/javascript">
+  <!--
+  function verify()
+  {
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+
+      if (username.trim() == "" )
+      {
+          var node = document.getElementById("alert")
+          node.innerHTML = "Username cannot be blank";
+          node.style.display = "block";
+      }
+      else if (password.trim() == "" )
+      {
+          var node = document.getElementById("alert")
+          node.innerHTML = "Password cannot be blank";
+          node.style.display = "block";
+      }
+      else
+      {
+
+          jQuery.ajax({
+              url:  "/user/verify_user?password=" + password + "&username=" + username ,
+              type:"POST",
+              success: function(result){
+                  outcome = JSON.parse(result)
+                  if (outcome)
+                  {
+                      window.location = "/"
+                  }
+                  else
+                  {
+                      var node = document.getElementById("alert")
+                      node.innerHTML = "Invalid Credentials";
+                      node.style.display = "block";
+                  }
+
+              },
+              error: function(){
+
+                  var node = document.getElementById("alert")
+                  node.innerHTML = "Invalid Credentials";
+                  node.style.display = "block";
+              }
+
+          });
+      }
+  }
+  //-->
+</script>
+<style type="text/css">
+   .alert{
+       display: none;
+   }
+
+
+</style>
+</head>
+
+<body style="background-color: #0A4958; ">
+    <div style="width: 100%; text-align: center;"><h2>LIMS National Dashboard</h2></div>
+<div id="container">
+
+    <label for="name">Username:</label>
+
+    <input id = "username" type="name">
+
+    <label for="username">Password:</label>
+
+    <input id = "password" type="password">
+
+    <div class = "lower" >
+            <table class="table">
+              <td>
+                <div id="alert" class="alert alert-dismissable alert-danger">
+                    Invalid Credentials
+                </div>
+              </td>
+              <td>
+                <input onmousedown = "verify()" type="submit" value="Login">
+              </td>
+            </table>
+    </div>
+
+</div>
+
+</body>
+
+</html>
