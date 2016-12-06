@@ -67,15 +67,19 @@ class ReportController < ApplicationController
     if params[:min_age].to_i == -1 || params[:max_age].to_i == -1
       params[:unknown_age] = true
     end
-    puts params[:display]
+    sample_types = params[:sample_type].downcase.split("__").collect{|s| s.strip}
+
     $data.each do |order|
       results = order.results || {}
       result_names = results.keys.collect{|r| r.strip}
 
+      next if !sample_types.blank? && !sample_types.include?(order["sample_type"].downcase.strip)
+
       test_type = (result_names & params[:test_type]).first
 
       next if (test_type.blank? && params[:test_type][0] != "aval")
-      measures = results[test_type]["results"]
+
+      measures = results[test_type]["results"] rescue {}
       r_names = (measures.keys & params[:result_names]).first rescue nil
 
       next if r_names.blank? && params[:result_names][0] != "aval"
@@ -115,7 +119,12 @@ class ReportController < ApplicationController
 
       if params[:value] != "aval"
         value = nil
-        value = params["value"].split("__") & measures.values if r_names.blank?
+
+        if r_names.blank?
+          a_values = params['values'].split("__").collect{|v| v.downcase.strip}
+          b_values =  measures.values.collect{|v| v.downcase.strip}
+          value = a_values & b_values
+        end
 
         if !value.blank?
           map[result_index] += 1
@@ -125,12 +134,21 @@ class ReportController < ApplicationController
         value = measures[r_names]
         if !params[:value_modifier].blank? && params[:value_modifier].match(/^has/) && !value.blank?
 
-          argv = params[:value_modifier].split(" ").last
-          arr_check = value.scan(argv)
-          if arr_check.length > 0
-            map[result_index] += 1
-            next
+          value_modifiers = params[:value_modifier].split("__")
+          stop = false
+
+          value_modifiers.each do |v_mod|
+            argv = v_mod.split(" ").last
+            argv = "+" if argv == "plus"
+            arr_check = value.scan(argv)
+            if arr_check.length > 0 && !stop
+              map[result_index] += 1
+              stop = true
+              next
+            end
           end
+
+          next if stop
         end
 
         if params[:value_modifier].match(/\<|\>/) && !value.blank?

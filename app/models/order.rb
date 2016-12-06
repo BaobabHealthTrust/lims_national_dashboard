@@ -16,11 +16,11 @@ class Order < CouchRest::Model::Base
     result_names.each do |rn |
       ts = self['results'][rn].keys
       ts.each do |t|
-        ts = ts - [t] if self['results'][rn][t]['results'] == []
+        ts = ts - [t] if self['results'][rn][t]['results'].blank?
       end
-      ts = ts.last
+      ts = ts.max
       next if ts.blank?
-      r[rn] =  self['results'][rn][ts]
+      r[rn] =  self['results'][rn][ts]['results'] rescue {}
     end
     r
   end
@@ -41,28 +41,28 @@ class Order < CouchRest::Model::Base
     view :by_datetime_and_sending_facility,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['sending_facility'] + '_' + doc['date_time']]);
+                      emit([doc['sending_facility'].trim() + '_' + doc['date_time']]);
                     }
                 }"
 
     view :by_datetime_and_district,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['district'] + '_' + doc['date_time']]);
+                      emit([doc['district'].trim() + '_' + doc['date_time']]);
                     }
                 }"
 
     view :by_datetime_and_receiving_facility,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['receiving_facility'] + '_' + doc['date_time']]);
+                      emit([doc['receiving_facility'].trim() + '_' + doc['date_time']]);
                     }
                 }"
 
     view :by_datetime_and_sample_type,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
-                      emit([doc['sample_type'] + '_' + doc['date_time']]);
+                      emit([doc['sample_type'].trim() + '_' + doc['date_time']]);
                     }
                 }"
 

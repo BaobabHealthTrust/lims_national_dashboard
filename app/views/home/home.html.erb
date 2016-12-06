@@ -14,8 +14,8 @@
 	<table style="width: 100%;">
 
             <tr>
-                <td valign="top" style="width: 50%;border-right: 1px dotted gray">
-                    <img id="map" style="width: 100%;" src="<%=image_url 'lims_sites.png'%>" />
+                <td valign="top" style="width: 45%;border-right: 1px dotted gray">
+                  <iframe style="border: 1px solid lightgray; border-top: none; height: 91vh; width: 98%" scrolling="no"  onload="resizeIframe('main-display')" id="main-display" src="/home/map_main"></iframe>
                 </td>
                 <td valign="top">
                   <table class="table sync-table" style="width: 100%;">
@@ -25,14 +25,15 @@
                       <th style="width: 30%;">Latest Sync</th>
                     </tr>
 
-                    <% (a=*(1..10)).reverse.each do |i|%>
+                    <% @sites_enabled.each do |site|%>
                         <tr class="row">
-                          <td> Kamuzu Central Hospital</td>
-                          <td><b><%= (i%2) == 0 ? "<span style='color: green;'>On</span>".html_safe :
+                          <td> <%= site.name %></td>
+                          <td><b><%= (0 == 0 ) ? "<span style='color: green;'>On</span>".html_safe :
                                              "<span style='color: red;'>Off</span>".html_safe%></b></td>
-                          <td><%= i.days.ago.strftime("%Y-%b-%d     %H:%M")%></td>
+                          <td><%= 1.days.ago.strftime("%Y-%b-%d     %H:%M")%></td>
                         </tr>
                     <% end %>
+
                   </table>
                 </td>
             </tr>

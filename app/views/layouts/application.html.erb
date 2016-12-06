@@ -39,13 +39,17 @@
 	<nav class="navbar">
 		<div class="container-fluid">
 			<div class=" nav navbar-nav pull-xs-left">				
-				<h4 class="brand nav-item" style="color: darkslategray"> National LIMS Monitor</h4>
+				<h4 class="brand nav-item" style="color: darkslategray">LIMS National Dashboard</h4>
 			</div>
 			<div class="btn-group nav navbar-nav pull-xs-right">
                 <a id='sync' url="/" class="btn btn-primary nav-item nav-link">Sync</a>
 				<a id='samples' url="/tests" class="btn btn-primary nav-item nav-link">Samples</a>
 				<a id='reports' url="/reports" class="btn btn-primary nav-item nav-link">Reports</a>
-                <a id='admin' url="/admin" class="btn btn-primary nav-item nav-link">Admin</a>
+                <% if User.current.user_role == "Administrator"%>
+                    <a id='admin' url="/admin" class="btn btn-primary nav-item nav-link">Admin</a>
+                <% end %>
+              <a id='logout' url="/logout" class="btn btn-danger nav-item nav-link">Logout <span style="font-size: 0.75em; color: darkslategray">(<%= User.current.username%>)</span></a>
+
             </div>
 		</div>
 	</nav>

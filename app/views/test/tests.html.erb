@@ -118,7 +118,7 @@
             <option value=""><i style="color: lightgray !important;font-size: 0.8em !important; ">Search By</i></option>
             <% ([['Tracking Number', 'tracking_number'],
                  ['District', 'by_datetime_and_district'],
-                 ['Sending Facility', 'by_datetime_sending_facility'],
+                 ['Sending Facility', 'by_datetime_and_sending_facility'],
                  ['Target Lab', 'by_datetime_and_receiving_facility'],
                  ['Sample Type', 'by_datetime_and_sample_type']]
                 ).each do |key|%>
@@ -153,8 +153,12 @@
            @tests.each_with_index do |test, i|
             test['results'] = test.results
             patient = test['patient']
-            name = (patient['first_name'] + ' ' + patient['middle_name'] + ' ' + patient['last_name']).titleize
-           test['patient'] = name + "  - Born: " + (patient['date_of_birth'].to_time.strftime("%d-%b-%Y") rescue '-')
+            name = (patient['first_name'] + ' ' + patient['middle_name'] + ' ' + patient['last_name']).titleize + ("(") + patient['gender'] + ")"
+           test['patient'] = name + " -  Born: " + (patient['date_of_birth'].to_time.strftime("%d/%b/%Y") rescue '-')
+           test['name'] = name;
+           test['date_drawn'] = test['date_drawn'].to_date.strftime("%d/%b/%Y") rescue "-"
+           test['date_dispatched'] = test['date_dispatched'].to_date.strftime("%d/%b/%Y") rescue "-"
+           test['date_received'] = test['date_received'].to_date.strftime("%d/%b/%Y") rescue "-"
         %>
             <tr>
               <td><%= test['_id']%></td>
@@ -182,19 +186,24 @@
         background: white; border: 2px solid darkslategray;border-radius: 5px !important;'>
 
     <table class="table table-condensed" style="width: 100%;margin: 5px;">
-      <tr class="table-row" style="width: 100%; border-bottom: 2px solid darkred">
+      <tr class="table-row" style="width: 100%; border-bottom: 2px solid darkred;">
             <th class="table-cell" style="padding: 5px;">Tracking Number</th>
-            <th class="table-cell clearable" id="tracking_number" style="padding: 5px;"><%= tests.first['_id'] rescue nil%></th>
+            <th class="table-cell clearable" key="_id" id="tracking_number" style="padding: 5px;"><%= tests.first['_id'] rescue nil%></th>
       </tr>
 
       <tr class="table-row" style="width: 100%">
-        <td class="table-cell clearable" style="padding: 5px;">Mary Banda</td>
-        <td class="table-cell clearable" id="patient" style="padding: 5px;"> born: 23-Mar-1992</td>
+        <td class="table-cell" key="name" style="padding: 5px;"><b>Patient</b></td>
+        <td class="table-cell clearable" key="patient" id="patient" style="padding: 5px;"></td>
       </tr>
 
       <tr class="table-row" style="width: 100%">
-        <td class="table-cell clearable" style="padding: 5px;">Sample Type: <i><%= tests.first['sample_type'] rescue nil%></i></td>
-        <td class="table-cell clearable" id="patient" style="padding: 5px;">Test Types: <i><%= tests.first['test_types'].join(', ') rescue nil%></i></td>
+        <td class="table-cell" key="sample_type" style="padding: 5px;"><b>Sample Type:</b></td>
+        <td class="table-cell clearable" id="patient" key="sample_type" style="padding: 5px;">Test Types: <i><%= tests.first['test_types'].join(', ') rescue nil%></i></td>
+      </tr>
+
+      <tr class="table-row" style="width: 100%">
+        <td class="table-cell" style="padding: 5px;"><b>Tests Ordered:</b></td>
+        <td class="table-cell clearable" id="test_types" key="test_types" style="padding: 5px;"><i><%= tests.first['test_types'].join(', ') rescue nil%></i></td>
       </tr>
 
       <tr class="table-row">
@@ -207,8 +216,8 @@
           <table class="table table-condensed" style="border: 1px solid #d3d3d3;width: 100%;">
             <% ["district", "sending_facility", "receiving_facility", 'order_location', 'priority'].each do |key| %>
                 <tr class="table-row">
-                  <td class="table-cell clearable" style="padding: 5px;"> <%= key.humanize%></td>
-                  <td class="table-cell clearable" id="<%= key%>" style="padding: 5px;">  <i><%= (tests.first[key] rescue nil) || '-'%></i></td>
+                  <td class="table-cell" style="padding: 5px;"> <b><%= key.humanize%></b></td>
+                  <td class="table-cell clearable" key="<%= key%>" id="<%= key%>" style="padding: 5px;"></td>
                 </tr>
             <% end %>
           </table>
@@ -219,8 +228,8 @@
 
                 <% ["date_drawn", "date_dispatched", "date_received", 'reason_for_test', 'status'].each do |key| %>
                   <tr class="table-row">
-                      <td class="table-cell" style="padding: 5px;"> <%= key.humanize%></td>
-                      <td class="table-cell clearable" id="<%= key%>" style="padding: 5px;"> <i><%= (tests.first[key] rescue nil) || '-'%></i></td>
+                      <td class="table-cell" style="padding: 5px;"> <b><%= key.humanize%></b></td>
+                      <td class="table-cell clearable" key="<%= key%>" id="<%= key%>" style="padding: 5px;"></td>
                   </tr>
                 <% end %>
            </table>
@@ -235,21 +244,6 @@
         <td colspan="2" class="table-cell"  style="width: 100%;padding: 0px;">
           <table id="results" class="table table-condensed" style="border: 1px solid #d3d3d3; width: 100%;" >
 
-            <% (tests.first.results rescue []).each do |result_type, results| %>
-                <tr class="table-row">
-                  <td class="table-cell" style="padding: 2px;width: 40%;" > <%= result_type%></td>
-                  <td class="table-cell clearable" id="<%= result_type%>" style="padding: 2px;width: 60%">
-                    <table class="table table-condensed" style="width: 100%">
-                        <% results.each do |k, v|%>
-                            <tr class="table-row">
-                              <td class="table-cell" style="padding:0px;width: 50%"><%= k%></td>
-                              <td class="table-cell" style="padding:0px;width:50%;"><%= v%></td>
-                            </tr>
-                        <% end %>
-                    </table>
-                  </td>
-                </tr>
-            <% end %>
           </table>
         </td>
       </tr>
@@ -296,6 +290,104 @@
         var data = td.getAttribute('data');
 
         data = JSON.parse(data);
+
+        var nodes = document.getElementsByClassName("clearable");
+
+        for (var i = 0; i < nodes.length; i++){
+
+            var key = nodes[i].getAttribute("key");
+
+            nodes[i].innerHTML = "";
+
+            if(key){
+
+                nodes[i].innerHTML = data[key];
+
+            }
+
+        }
+
+        //show results
+        var results = data['results'];
+
+        var table = __$("results");
+
+        table.innerHTML = "";
+
+        for(var test in results){
+
+            var row = document.createElement("tr");
+
+            row.className = "table-row";
+
+            table.appendChild(row);
+
+            var td1 = document.createElement("td");
+
+            td1.style.padding = "2px";
+
+            td1.style.width = "40%";
+
+            td1.className = "table-cell";
+
+            td1.innerHTML = test;
+
+            row.appendChild(td1);
+
+            var td2 = document.createElement("td");
+
+            td2.style.padding = "2px";
+
+            td2.style.width = "60%";
+
+
+            td2.className = "table-cell";
+
+            td2.innerHTML = "<table id='rst' class='table table-condensed'> </table>";
+
+            row.appendChild(td2);
+
+            var rTable = __$("rst");
+
+            rTable.style.border = "1px solid lightgray";
+
+            var result_names = Object.keys(results[test]);
+
+            for (var k = 0; k < result_names.length; k ++){
+
+                var row2 = document.createElement("tr");
+
+                row2.className = "table-row";
+
+                rTable.appendChild(row2);
+
+                var d1 = document.createElement("td");
+
+                d1.style.padding = "2px";
+
+                d1.style.width = "50%";
+
+                d1.className = "table-cell";
+
+                d1.innerHTML = result_names[k];
+
+                row2.appendChild(d1);
+
+                var d2 = document.createElement("td");
+
+                d2.style.padding = "2px";
+
+                d2.style.width = "50%";
+
+                d2.className = "table-cell";
+
+                d2.innerHTML = results[test][result_names[k]];
+
+                row2.appendChild(d2);
+
+            }
+
+        }
 
         popup(data);
 

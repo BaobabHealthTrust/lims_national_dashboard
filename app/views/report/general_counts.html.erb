@@ -210,31 +210,32 @@
 
         ["Microbiology",
             [
-                ["Bacterilogy", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of AFB sputum examined", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of new TB cases examined", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["New cases with positive smear", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of AFB sputum examined", ['TB Tests'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of new TB cases examined", ['TB Tests'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["New cases with positive smear", ['TB Tests'], ['Smear microscopy result'], ['Positive', "has Scanty__has plus"], ["", ""], ["", ""], ""],
                 ["Pick-up rate", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Number of TB follow-up patients", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Number of uncategorised AFB sputum examined", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Gene - Xpert Test Results", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Total cartridges used", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["MTB Not Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["MTB Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["RIF Resistant Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["RIF Resistant Not Detected", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["RIF Resistant Indeterminate", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Errors /Error Codes", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Invalid", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["No Results", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["CSF & Other Body Fluids", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of CSF samples analysed", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of CSF samples analysed for AFB", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of CSF samples with organisms", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["HVS analysed", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Other swabs", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of blood cultures done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Positive blood cultures", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["MTB Not Detected", ['TB Tests'], ['Gene Xpert MTB'], ['MTB NOT DETECTED__NOT_DETECTED', ""], ["", ""], ["", ""], ""],
+                ["MTB Detected", ['TB Tests'], ['Gene Xpert MTB'],
+                    ['MTB DETECTED__MTB DETECTED HIGH__MTB DETECTED VERY HIGH__MTB DETECTED LOW__MTB DETECTED VERY LOW__MTB DETECTED MEDIUM__MTB DETECTED__DETECTED LOW__DETECTED VERY LOW__DETECTED MEDIUM', ""],
+                    ["", ""], ["", ""], ""],
+                ["RIF Resistant Detected", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['DETECTED__RIF RESISTANCE DETECTED', ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Not Detected", ['TB Tests'], ['Gene Xpert RIF Resistance'], ["NOT DETECTED_RIF RESISTANCE NOT DETECTED", ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Indeterminate", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['INDETERMINATE__RIF RESISTANCE INDETERMINATE', ""], ["", ""], ["", ""], ""],
+                ["Errors /Error Codes", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['ERROR__RIF RESISTANCE ERROR', ""], ["", ""], ["", ""], ""],
+                ["Invalid", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['INVALID__RIF RESISTANCE INVALID', ""], ["", ""], ["", ""], ""],
+                ["No Results", ['TB Tests'], ['Gene Xpert MTB'], ['NOT DONE', ""], ["", ""], ["", ""], ""],
+                ["CSF & Other Body Fluids", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "",
+                    "CSF__Pericardial Fluid__Peritoneal Fluid__Pleural Fluid__Ascitic Fluid__Blood"],
+                ["Number of CSF samples analysed", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "CSF"],
+                ["Number of CSF samples analysed for AFB", ['ZN Stain'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "CSF"],
+                ["Number of CSF samples with organisms", ['Culture & Sensitivity'], ['Culture'], ['Growth', ""], ["", ""], ["", ""], ""],
+                ["HVS analysed", ['HVS Analysis'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Other swabs", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "Swabs"],
+                ["Number of blood cultures done", ['Culture & Sensitivity'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "Blood"],
+                ["Positive blood cultures", ['Culture & Sensitivity'], ['Culture'], ['Growth', ""], ["", ""], ["", ""], "", "Blood"],
                 ["Other body fluids(pleural, Ascitic,synovial etc)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Total number of fluids analysed", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Fluids with organisms", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
@@ -326,7 +327,7 @@
             var row = block[n];
             cc = cc + 1;
             if(row.length != 7) {
-                continue;
+               // continue;
             }
 
 
@@ -337,7 +338,7 @@
                     "&min_age=" + row[4][0] + "&min_age_modifier=" + row[4][1] +
                     "&max_age=" + row[5][0] + "&max_age_modifier=" + row[5][1] +
                     "&wards=" + row[6] + "&quarter=<%= params[:quarter]%>" +
-                    "&year=<%= params[:year]%>";
+                    "&year=<%= params[:year]%>&sample_type=" + (row[7] || "");
 
             ajaxify(cc, url);
         }
