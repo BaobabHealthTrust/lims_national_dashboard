@@ -115,24 +115,7 @@
 
     }
 
-    function updateSite(){
-        jQuery.ajax({
-            url: "/site/get_current_site",
-            type: "GET",
-            success: function(data){
-                 currentSite = JSON.parse(data);
 
-                if (currentSite.length > 0) {
-
-                }
-
-            }
-        })
-
-        setTimeout("updateSite()", 1500);
-    }
-
-        setTimeout("updateSite()", 1500);
 
 </script>
 

@@ -45,10 +45,10 @@
                 <a id='sync' url="/" class="btn btn-primary nav-item nav-link">Sync</a>
 				<a id='samples' url="/tests" class="btn btn-primary nav-item nav-link">Samples</a>
 				<a id='reports' url="/reports" class="btn btn-primary nav-item nav-link">Reports</a>
-                <% if User.current.user_role == "Administrator"%>
+                <% if (@user.user_role )== "Administrator"%>
                     <a id='admin' url="/admin" class="btn btn-primary nav-item nav-link">Admin</a>
                 <% end %>
-              <a id='logout' url="/logout" class="btn btn-danger nav-item nav-link">Logout <span style="font-size: 0.75em; color: darkslategray">(<%= User.current.username%>)</span></a>
+              <a id='logout' url="/logout" class="btn btn-danger nav-item nav-link">Logout <span style="font-size: 0.75em; color: darkslategray">(<%= @user.username%>)</span></a>
 
             </div>
 		</div>
