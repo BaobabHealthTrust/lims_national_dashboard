@@ -58,7 +58,6 @@ class Order < CouchRest::Model::Base
                       emit([doc['receiving_facility'].trim() + '_' + doc['date_time']]);
                     }
                 }"
-
     view :by_datetime_and_sample_type,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
@@ -70,6 +69,26 @@ class Order < CouchRest::Model::Base
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
                       emit([doc['patient']['first_name'].trim(), doc['patient']['middle_name'].trim(), doc['patient']['last_name'].trim()]);
+                    }
+                }"
+
+    view :by_test_type,
+         :map => "function(doc) {
+                    if (doc['_id'].match(/^X/)) {
+                      var test_types = doc['test_types'];
+                      for(i in test_types){
+                        emit([test_types[i]]);
+                      }
+                    }
+                }"
+
+    view :by_datetime_and_test_type,
+         :map => "function(doc) {
+                    if (doc['_id'].match(/^X/)) {
+                      var test_types = doc['test_types'];
+                      for(i in test_types){
+                        emit([test_types[i] + '_' + doc['date_time']]);
+                      }
                     }
                 }"
   end

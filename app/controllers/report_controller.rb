@@ -71,7 +71,7 @@ class ReportController < ApplicationController
 
     $data.each do |order|
       results = order.results
-      result_names = results.keys
+      result_names = results.keys.collect{|r| r.strip}
 
       #sample type mismatch
       next if !sample_types.blank? && !sample_types.include?(order["sample_type"].downcase.strip)
@@ -81,6 +81,10 @@ class ReportController < ApplicationController
       next if (test_type.blank? && params[:test_type][0] != "aval")
 
       measures = (results[test_type] || {}) rescue {}
+
+      measures.each do |r, v|
+        measures[r] = v.strip
+      end
 
       r_names = (measures.keys & params[:result_names]).first
 

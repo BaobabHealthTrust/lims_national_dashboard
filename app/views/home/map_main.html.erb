@@ -98,9 +98,9 @@
         if(document.getElementById(id)){
             result = document.getElementById(id).getAttribute("tag");
             if (sitesErrors[result]){
-                result = result + ",   " + sitesErrors[result] + " error(s)";
+                result = result + ",   " + sitesErrors[result];
             }else{
-                result = result + ",  0 error(s)";
+                result = result;
             }
         }
 

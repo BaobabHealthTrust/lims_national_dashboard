@@ -122,6 +122,8 @@ GEM
     rake (11.3.0)
     rdoc (4.2.2)
       json (~> 1.4)
+    rest-client (1.6.7)
+      mime-types (>= 1.16)
     roo (2.5.1)
       nokogiri (~> 1)
       rubyzip (~> 1.1, < 2.0.0)
@@ -183,6 +185,7 @@ DEPENDENCIES
   jquery-rails
   rails (= 4.2.6)
   rails-assets-tether (>= 1.1.0)!
+  rest-client
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   simple-spreadsheet

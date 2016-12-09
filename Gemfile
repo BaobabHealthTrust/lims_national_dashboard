@@ -12,7 +12,7 @@ source 'https://rails-assets.org' do
 end
 
 gem 'couchrest_model'
-
+gem 'rest-client'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
