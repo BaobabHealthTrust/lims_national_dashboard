@@ -1,6 +1,6 @@
 development: &development
   protocol: 'http'
-  host: localhost
+  host: 192.168.12.89
   port: 5984
   prefix: lims
   suffix: repo

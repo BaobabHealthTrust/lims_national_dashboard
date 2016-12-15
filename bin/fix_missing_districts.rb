@@ -51,7 +51,7 @@ orders.each do |order|
 
   if update == true
     puts order['_id']
-    url = "http://root:password@localhos:5984/lims_repo/"
+    url = "http://user:password@ipaddress:5984/lims_repo/"
     RestClient.post(url,  order.to_json, :content_type => "application/json")
   end
 end
