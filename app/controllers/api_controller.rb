@@ -15,13 +15,15 @@ class ApiController < ApplicationController
       vl_orders << order if (order['test_types'] & ['Viral Load', "Viral load", "VL"]).length > 0
     }
 
-    vl_orders.each { |order|
-      result_a = (order['results']['Viral load'] || order['results']['Viral Load'] || order['results']['VL'])
-      timestamp = result_a.keys.last
+    ([vl_orders.last]).each { |order|
+      next if order.nil?
 
-      next if order['status'].downcase.strip == 'reviewed'
+      result_a = (order['results']['Viral Load'] || order['results']['Viral load'] || order['results']['VL'])
+      timestamp = result_a.keys.sort.last
+
       test_status = result_a[timestamp]['test_status']
-      results = [order.results] if !result_a[timestamp]['results'].blank? && ['completed', 'verified'].include?(test_status.downcase.strip)
+      rst = result_a[timestamp]["results"]
+      results << [timestamp, rst] if !rst.blank? && ['completed', 'verified'].include?(test_status.downcase.strip)
     }
 
     render :text => results.to_json
