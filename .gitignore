@@ -11,3 +11,5 @@
 /log/*
 !/log/.keep
 /tmp
+config/couchdb.yml
+config/application.yml

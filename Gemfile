@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-
+gem 'whenever', :require => false
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'
 gem 'bootstrap', '4.0.0.alpha3'

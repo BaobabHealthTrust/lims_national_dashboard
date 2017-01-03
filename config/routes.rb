@@ -50,8 +50,6 @@ Rails.application.routes.draw do
 	post "site/update_site"
 	post "site/update_current_site"
 	get "site/get_current_site"
-
-
-
-
+  get "api/viral_load_stats"
+  get "api/vl_result_by_npid"
 end

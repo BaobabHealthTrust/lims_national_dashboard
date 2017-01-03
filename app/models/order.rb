@@ -91,6 +91,39 @@ class Order < CouchRest::Model::Base
                       }
                     }
                 }"
+
+    view :by_test_type_and_status_and_datetime,
+         :map => "function(doc){
+                    if (doc['_id'].match(/^X/)) {
+                      var results = doc['results'];
+                      var test_types = doc['test_types'];
+                      for(var i in test_types){
+
+                        if(typeof(results[test_types[i]]) != 'undefined' ){
+                          var cur_result = results[test_types[i]];
+                          var tss = Object.keys(cur_result);
+                          var ts = tss[tss.length - 1];
+
+                          if(typeof(cur_result[ts]) != 'undefined'){
+                            var status = doc['status'].toLowerCase().trim();
+                            if(status != 'rejected' && status != 'voided' && status != 'not done'){
+                              status = cur_result[ts]['test_status'].toLowerCase().trim();
+                            }
+                            emit([doc['sending_facility'].toLowerCase() + '_' + test_types[i].toLowerCase() + '_' + status + '_' + doc['date_time']]);
+                          }
+                        }
+                      }
+                    }
+                }"
+
+    view :by_national_id_and_datetime,
+         :map => "function(doc){
+                    if (doc['_id'].match(/^X/)) {
+                       if(typeof(doc['patient']['national_patient_id']) != 'undefined' && doc['patient']['national_patient_id'].trim() != ''){
+                          emit([doc['patient']['national_patient_id'].replace('$', '') + '_' + doc['date_time']]);
+                       }
+                    }
+                }"
   end
 
 end

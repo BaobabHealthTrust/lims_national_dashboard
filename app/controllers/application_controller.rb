@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   skip_before_action :verify_authenticity_token
 
-  before_filter :check_user, :except => ["login", 'verify_user']
+  before_filter :check_user, :except => ["login", 'verify_user', 'viral_load_stats', 'vl_result_by_npid']
 
   protected
 

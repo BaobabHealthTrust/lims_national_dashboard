@@ -38,6 +38,10 @@ class TestController < ApplicationController
         @tests = Order.by_datetime_and_sample_type.startkey(
             [search_value + "_" + start_time]).endkey([search_value + "_" + end_time]
         ).page(@cur_page).per(@page_size).each
+      when 'by_datetime_and_test_type'
+        @tests = Order.by_datetime_and_test_type.startkey(
+            [search_value + "_" + start_time]).endkey([search_value + "_" + end_time]
+        ).page(@cur_page).per(@page_size).each
       when 'by_datetime_and_district'
         @tests = Order.by_datetime_and_district.startkey(
             [search_value + "_" + start_time]).endkey([search_value + "_" + end_time]
