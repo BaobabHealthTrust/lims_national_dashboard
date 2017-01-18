@@ -28,12 +28,13 @@ class ApiController < ApplicationController
 
       order_status = result_a[timestamp]['test_status']
       rst = result_a[timestamp]["results"]
+
       if order['status'].match(/rejected/i)
         rst = "Rejected"
         order_status = "Rejected"
       end
 
-      rst = {"Viral Load" => "Rejected"} if ["rejected"].include?(rst.downcase)
+      rst = {"Viral Load" => "Rejected"} if (["rejected"].include?(rst.downcase) rescue false)
 
       if (!rst.blank? && test_status.include?(order_status.downcase.strip)) || order['status'].match(/rejected/i)
         results << [timestamp, rst, order_status, timestamp]
