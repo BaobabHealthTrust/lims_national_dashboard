@@ -52,4 +52,6 @@ Rails.application.routes.draw do
 	get "site/get_current_site"
   get "api/viral_load_stats"
   get "api/vl_result_by_npid"
+  get "api/patient_lab_trail"
+
 end

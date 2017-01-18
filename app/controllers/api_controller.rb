@@ -7,25 +7,58 @@ class ApiController < ApplicationController
   def vl_result_by_npid
 
     results = []
+    last_order = {}
+
+    test_status = params[:test_status].split("__") rescue nil
+    test_status = ['verified'] if test_status.blank?
+
     startkey = "#{params[:npid].strip}_10000000000000"
     endkey = "#{params[:npid].strip}_#{Time.now.strftime('%Y%m%d%H%M%S')}"
 
     vl_orders = []
     Order.by_national_id_and_datetime.startkey([startkey]).endkey([endkey]).each {|order|
-      vl_orders << order if (order['test_types'] & ['Viral Load', "Viral load", "VL"]).length > 0
+      vl_orders << order if (order['test_types'] & ['Viral Load']).length > 0
     }
 
     ([vl_orders.last]).each { |order|
       next if order.nil?
 
-      result_a = (order['results']['Viral Load'] || order['results']['Viral load'] || order['results']['VL'])
+      result_a = order['results']['Viral Load']
       timestamp = result_a.keys.sort.last
 
-      test_status = result_a[timestamp]['test_status']
+      order_status = result_a[timestamp]['test_status']
       rst = result_a[timestamp]["results"]
-      results << [timestamp, rst] if !rst.blank? && ['completed', 'verified'].include?(test_status.downcase.strip)
+      if order['status'].match(/rejected/i)
+        rst = "Rejected"
+        order_status = "Rejected"
+      end
+
+      rst = {"Viral Load" => "Rejected"} if ["rejected"].include?(rst.downcase)
+
+      if (!rst.blank? && test_status.include?(order_status.downcase.strip)) || order['status'].match(/rejected/i)
+        results << [timestamp, rst, order_status, timestamp]
+        last_order = order
+      end
     }
 
-    render :text => results.to_json
+    if ((params[:raw].to_s == "true" ) rescue false)
+      render :text => last_order.to_json
+    else
+      render :text => results.to_json
+    end
+  end
+
+  def patient_lab_trail
+
+
+    startkey = "#{params[:npid].strip}_10000000000000"
+    endkey = "#{params[:npid].strip}_#{Time.now.strftime('%Y%m%d%H%M%S')}"
+
+    orders = []
+    Order.by_national_id_and_datetime.startkey([startkey]).endkey([endkey]).each {|order|
+      orders << order
+    }
+
+    render :text => orders.sort_by{|o| o['date_time']}.reverse.to_json
   end
 end

@@ -9,7 +9,7 @@ namespace :api do
 
     map = {
         "pending" => ["drawn", "started", "completed"],
-        "rejected" => ["not-done", "rejected", "voided"],
+        "rejected" => ["rejected", "voided", 'specimen-rejected'],
         "completed" => ["verified"],
         "reviewed" => ["reviewed"]
     }
