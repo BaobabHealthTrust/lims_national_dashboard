@@ -107,7 +107,7 @@ class Order < CouchRest::Model::Base
 
                           if(typeof(cur_result[ts]) != 'undefined'){
                             var status = doc['status'].toLowerCase().trim();
-                            if(status != 'rejected' && status != 'voided' && status != 'not done'){
+                            if(status != 'specimen-rejected' && status != 'rejected' && status != 'voided' && status != 'not done'){
                               status = cur_result[ts]['test_status'].toLowerCase().trim();
                             }
                             emit([doc['sending_facility'].toLowerCase() + '_' + test_types[i].toLowerCase() + '_' + status + '_' + doc['date_time']]);
