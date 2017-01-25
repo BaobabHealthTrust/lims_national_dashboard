@@ -4,8 +4,8 @@ development: &development
   port: 5984
   prefix: lims
   suffix: repo
-  username: root
-  password: password
+  username: gibo
+  password: amin9090!
 test:
   <<: *development
   suffix: test
