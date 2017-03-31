@@ -11,5 +11,6 @@ test:
   suffix: test
 
 production:
+  production:
   <<: *development
   protocol: 'http'

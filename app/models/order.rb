@@ -125,6 +125,16 @@ class Order < CouchRest::Model::Base
                        }
                     }
                 }"
+
+
+                  view :trying, 
+         :map => "function(doc) {
+                    if (doc['patient']['national_patient_id'] == 'h')
+                     {  
+                          emit({name: doc['patient']['first_name']});
+                     }
+
+                     }"
   end
 
 end

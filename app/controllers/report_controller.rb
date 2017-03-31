@@ -19,6 +19,7 @@ class ReportController < ApplicationController
 
   def general_report_data
      
+
     #[display_name, [test_types], [result_types], [value, [value_modifiers]], min_age, max_age, other, count]
     @csv_quarter =  params[:quarter]
     @csv_year = params[:year]
@@ -353,6 +354,7 @@ def exp
         raise "Missing Quarter for Year #{params[:year]}".to_s
     end
    $data = Order.generic.startkey([start_time]).endkey([end_time]).each
+   
    
   end
 end
