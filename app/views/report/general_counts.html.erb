@@ -1,4 +1,4 @@
-<style>
+ <style>
     #table, #tbl{
         border-collapse: collapse;
         font-size: 0.9em;
@@ -22,8 +22,9 @@
 
 </style>
 
-<div class="container-fluid text-xs-center" style="border-bottom: 1px solid black;border-top: 2px solid darkred;background: #d3d3d3">
-  <h4> General Counts - <%= params[:quarter]%></h4>
+<div class="container-fluid text-xs-center" style="border-bottom: 1px solid black;border-top: 2px solid darkred;background: #d3d3d3; padding-bottom: 5px; padding-top: 5px; padding-right: 22px;">
+  <h4> General Counts - <%= params[:quarter]%><span style="position: relative; float: right;"class="btn btn-success btn-sm" onclick="create_csv()">Export to CSV</span></h4>
+  
 </div>
 
 <div style="width: 100%;padding: 0.5%;overflow: auto;margin: 0px;padding-bottom: 0px;">
@@ -48,37 +49,40 @@
 </div>
 
 <div id="reports" style="width: 100%; height: 78vh;padding: 0.5%;padding-top: 0px;overflow: auto;margin: 0px;">
-  <table id="table" class="table table-condensed table-striped" style="width: 100%;border: 1px solid lightgray;">
+  <table id="table" class="table table-condensed table-striped" style="width: 100%;border: 1px solid lightgray;" >
 
   </table>
 </div>
 
+
 <script>
    loaded = 0;
     map = [
-        ["Haematology",
-            [
-                ["Full Blood Count", ['FBC'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Heamoglobin only (blood donors excluded)", ['FBC'], ['HGB'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Patients with Hb ≤ 6.0g/dl", ['FBC'], ['HGB'], ['6.0', "<= 6.0"], ["", ""], ["", ""], ""],
-                ["Patients with Hb ≤ 6.0g/dl who were transfused", [''], [''], ['', ""], ["", ""], ["", ""], ""],
-                ["Patients with Hb > 6.0g/dl", ['FBC'], ['HGB'], ['6.0', "> 6.0"], ["", ""], ["", ""], ""],
-                ["Patients with Hb > 6.0g/dl who were transfused",  [''], [''], ['', ""], ["", ""], ["", ""], ""],
-                ["WBC", ['FBC'], ['WBC'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Erythrocyte Sedimentation Rate (ESR)", ['ESR'], ['ESR'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Sickling Test", ['Sickling Test'], ['Sickling Screen'], ['aval', ""], ["", ""], ["", ""], ""],
-                // ["Reticulocyte count",  ['Manual Differential & Cell Morphology'], [''], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Prothrombin time (PT)",  ['Prothrombin Time__Coagulation Assay'], ['PT'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Activated Partial Thromboplastin Time (APTT)", ['APTT__Coagulation Assay'], ['APTT'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["International Normalized Ratio (INR)", ['INR__Coagulation Assay'], ['INR'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["CD4 absolute count",  ['CD4'], ['CD4 Count'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["CD4 percentage",  ['CD4'], ['CD4 percent'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Blood film for red cell morphology",  ['Manual Differential & Cell Morphology'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
-                //["Bleeding/clotting time", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
-            ]
+     
+    
+     ["Haematology", 
+            [ 
+                ["Full Blood Count", ['FBC'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""], 
+                ["Heamoglobin only (blood donors excluded)", ['FBC'], ['HGB'], ['aval', "h"], ["", ""], ["", ""], ""], 
+                ["Patients with Hb ≤ 6.0g/dl", ['FBC'], ['HGB'], ['6.0', ""], ["", ""],["", ""], ""],
+                //["Patients with Hb ≤ 6.0g/dl who were transfused", [''], [''], ['', ""], ["", ""], ["", ""], ""], 
+                ["Patients with Hb > 6.0g/dl", ['FBC'], ['HGB'], ['6.0', ""], ["", ""], ["", ""], ""],//["Patients with Hb > 6.0g/dl who were transfused",  [''], [''], ['', ""], ["", ""], ["", ""], ""], 
+                ["WBC", ['FBC'], ['WBC'], ['aval', ""], ["", ""], ["", ""], ""], 
+                ["Erythrocyte Sedimentation Rate (ESR)", ['ESR'], ['ESR'], ['aval', ""], ["", ""], ["", ""], ""], 
+                ["Sickling Test",['Sickling Test'],['Sickling Screen'],['aval', ""],["", ""],["", ""], ""], 
+                // ["Reticulocyte count",  ['Manual Differential & Cell Morphology'], [''], ['aval', ""], ["", ""], ["", ""], ""],                
+                ["Prothrombin time (PT)",  ['Prothrombin Time'], ['PT'], ['aval', ""], ["", ""], ["", ""], ""],                 
+                ["Activated Partial Thromboplastin Time (APTT)", ['APTT'], ['APTT'], ['aval', ""], ["", ""], ["", ""], ""], 
+                ["International Normalized Ratio (INR)", ['INR'], ['INR'], ['aval', ""], ["", ""], ["", ""], ""], 
+                ["CD4 absolute count",  ['CD4'], ['CD4 Count'], ['aval', ""], ["", ""], ["", ""], ""], 
+                ["CD4 percentage",  ['CD4'], ['CD4 percent'], ['aval', ""], ["", ""], ["", ""], ""], 
+                ["Blood film for red cell morphology",  ['Manual Differential & Cell Morphology'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""], 
+                //["Bleeding/clotting time", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""] 
+            ] 
         ],
-
-        ["Blood Transfusion Services",
+        /*
+        
+          ["Blood Transfusion Services",
             [
                 ["Number of units ordered from MBTS" ,[''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Number of units received from MBTS", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
@@ -113,88 +117,85 @@
                 ["Number of units reallocated", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Blood units lost due to other reasons", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Expired Blood units", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
-            ]
-        ],
-
-        ["Serology",
-            [
-                ["Syphilis screening on patients", ['Syphilis Test'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Positive tests &uarr;", ['Syphilis Test'], ['VDRL__RPR_TPHA'], ['Reactive', ""], ["", ""], ["", ""], ""],
+              ]
+           ],        
+    */
+     ["Serology",
+            [   ["Syphilis screening on patients", ['Syphilis Test'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Positive Syphilis tests", ['Syphilis Test'], ['VDRL__RPR__TPHA'], ['Reactive', ""], ["", ""], ["", ""], ""],
                 ["Syphilis screening on antenatal mothers", ['Syphilis Test'], ['aval'], ['aval', ""], ["", ""], ["", ""], 'ANC__EM OPD'],
-                ["Positive tests &uarr;", ['Syphilis Test'], ['RPR__VDRL__TPHA'], ['Reactive', ""], ["", ""], ["", ""], 'ANC__EM OPD'],
+                ["Positive Syphilis screening on antenatal mothers", ['Syphilis Test'], ['RPR__VDRL__TPHA'], ['Reactive', ""], ["", ""], ["", ""], 'ANC__EM OPD'],
                 ["HepBsAg test done on patients", ['Hepatitis B Test'], ['Hepatitis B'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Positive tests &uarr;", ['Hepatitis B Test'], ['Hepatitis B'], ['Positive', ""], ["", ""], ["", ""], ""],
+                ["Positive HepBsAg tests", ['Hepatitis B Test'], ['Hepatitis B'], ['Positive', ""], ["", ""], ["", ""], ""],
                 ["HepCcAg tests done on patients", ['Hepatitis C Test'], ['Hepatitis C'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Positive tests &uarr;", ['Hepatitis C Test'], ['Hepatitis C'], ['Positive', ""], ["", ""], ["", ""], ""],
+                ["Positive HepCcAg tests", ['Hepatitis C Test'], ['Hepatitis C'], ['Positive', ""], ["", ""], ["", ""], ""],
                 ["Hcg Pregnacy tests done", ['Pregnancy Test'], ['Pregnancy Test'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Positives done &uarr;", ['Pregnancy Test'], ['Pregnancy Test'], ['Positive', ""], ["", ""], ["", ""], ""],
-                ["HIV tests on PEP patients", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Positives tests &uarr;", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+                ["Positive Hcg Pregnacy tests", ['Pregnancy Test'], ['Pregnancy Test'], ['Positive', ""], ["", ""], ["", ""], ""],
+                //["HIV tests on PEP patients", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                //["Positive tests &uarr", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
             ]
-        ],
-
+        ],        
         ["Parasitology",
-            [
+            [               
                 ["Total malaria microscopy tests done", ['Malaria Screening'], ['Blood film'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Malaria microscopy Positives &uarr;", ['Malaria Screening'], ['Malaria Species'], ['aval', ""], ["", ""], ["", ""], ""],
-
+                ["Malaria microscopy Positives &uarr", ['Malaria Screening'], ['Malaria Species'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["HVS analysed", ['HVS Analysis'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Plasmodium falciparum", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium falciparum', ""], ["", ""], ["", ""], ""],
                 ["Plasmodium ovale", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium ovale', ""], ["", ""], ["", ""], ""],
                 ["Plasmodium vivax", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium vivax', ""], ["", ""], ["", ""], ""],
                 ["Plasmodium malariae", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium malariae', ""], ["", ""], ["", ""], ""],
                 ["Plasmodium knowlesi", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium knowlesi', ""], ["", ""], ["", ""], ""],
-
-                ["Malaria microscopy in ≤ 5yrs", ['Malaria Screening'], ['Blood film'], ['aval', ""], ["", ""], [5, ""], ""],
-                ["Malaria microscopy positives in <= 5yrs &uarr;", ['Malaria Screening'], ['Malaria Species'], ['aval', ""], ["", ""], [5, ""], ""],
-
+                ["Malaria microscopy in ≤ 5yrs", ['Malaria Screening'],['aval'],['aval', ""],["", ""], [5, ""], ""],
+                ["Malaria microscopy positives in <= 5yrs &uarr", ['Malaria Screening'], ['Malaria Species'], ['aval', ""], ["", ""], [5, ""], ""],
                 ["Plasmodium falciparum in ≤ 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium falciparum', ""], ["", ""], [5, ""], ""],
                 ["Plasmodium ovale in ≤ 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium ovale', ""], ["", ""], [5, ""], ""],
                 ["Plasmodium vivax in ≤ 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium vivax', ""], ["", ""], [5, ""], ""],
                 ["Plasmodium malariae in ≤ 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium malariae', ""], ["", ""], [5, ""], ""],
                 ["Plasmodium knowlesi in ≤ 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium knowlesi', ""], ["", ""], [5, ""], ""],
-
                 ["Malaria microscopy in > 5yrs", ['Malaria Screening'], ['Blood film'], ['aval', ""], [6, ""], ["", ""], ""],
                 ["Malaria positives in > 5yrs", ['Malaria Screening'], ['Malaria Species'], ['aval', ""], [6, ""], ["", ""], ""],
-
                 ["Plasmodium falciparum in > 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium falciparum', ""], [6, ""], ["", ""], ""],
                 ["Plasmodium ovale in > 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium ovale', ""], [6, ""], ["", ""], ""],
                 ["Plasmodium vivax in > 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium vivax', ""], [6, ""], ["", ""], ""],
                 ["Plasmodium malariae in > 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium malariae', ""], [6, ""], ["", ""], ""],
                 ["Plasmodium knowlesi in > 5yrs", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium knowlesi', ""], [6, ""], ["", ""], ""],
-
                 ["Malaria microscopy in unknown age", ['Malaria Screening'], ['Blood film'], ['aval', ""], ["", ""], [-0.5, ""], ""],
                 ["Malaria microsopy positives in unknown age", ['Malaria Screening'], ['Malaria Species'], ['aval', ""], ["", ""], [-0.5, ""], ""],
-
                 ["Plasmodium falciparum in unknown age", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium falciparum', ""], ["", ""], [-0.5, ""], ""],
                 ["Plasmodium ovale in unknown age", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium ovale', ""], ["", ""], [-0.5, ""], ""],
                 ["Plasmodium vivax in unknown age", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium vivax', ""], ["", ""], [-0.5, ""], ""],
                 ["Plasmodium malariae in unknown age", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium malariae', ""], ["", ""], [-0.5, ""], ""],
                 ["Plasmodium knowlesi in unknown age", ['Malaria Screening'], ['Malaria Species'], ['Plasmodium knowlesi', ""], ["", ""], [-0.5, ""], ""],
-
-                ["Total MRDTs Done", ['Malaria Screening'], ['MRDT'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["MRDTs Positives", ['Malaria Screening'], ['MRDT'], ['Positive', ""], ["", ""], ["", ""], ""],
+                ["Total MRDTs Done", ['Malaria Screening'], ['MRDT'], ['aval', ""], ["", ""], ["", ""],""],
+                ["MRDTs Positives", ['Malaria Screening'], ['MRDT'],['Positive', ""],["", ""],["", ""],""],
                 ["MRDTs in <= 5yrs", ['Malaria Screening'], ['MRDT'], ['aval', ""], [5, ""], ["", ""], ""],
-                ["MRDT Positives in <= 5yrs",['Malaria Screening'], ['MRDT'], ['Positive', ""], [5, ""], ["", ""], ""],
+                ["MRDT Positives in <= 5yrs",['Malaria Screening'],['MRDT'],['Positive', ""],[5, ""],["", ""], ""],
                 ["MRDTs In > 5yrs", ['Malaria Screening'], ['MRDT'], ['aval', ""], ["", ""], [5, ""], ""],
                 ["MRDT Positives in > 5yrs", ['Malaria Screening'], ['MRDT'], ['Positive', ""], ["", ""], [5, ""], ""],
                 ["Total invalid MRDTs tests", ['Malaria Screening'], ['MRDT'], ['Invalid', ""], ["", ""], ["", ""], ""],
-                ["Trypanosome tests", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Positive tests", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                //["Trypanosome tests", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                //["Positive tests", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Urine microscopy total", ['Urine Microscopy'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Schistome Haematobium", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                /*
+                ["Schistome Haematobium", ['to get it around soon'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                to be given as well
+                */
                 ["Other urine parasites", ['Urine Microscopy'], ['Parasites'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Urine chemistry", ['Urine Chemistries'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Semen analysis", ['Semen Analysis'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Stool microscopy", ['Stool Analysis'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+               /*
                 ["Nemotodes", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Cematodes", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Trematodes", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+
                 ["Other stool parasites", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Filarial worm", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+                not come back to me
+                */
             ]
         ],
-
-        ["Chemistry",
+        ["Biochemistry",
             [
                 ["Blood glucose", ['Glucose', 'Enzymes'], ['Glucose', 'GLU-O-H'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["CSF glucose", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
@@ -202,23 +203,23 @@
                 ["Alkaline Phosphatase(ALP)", ['Liver Function Tests', 'Enzymes'], ['Alkaline Phosphate(ALP)', 'ALP-H'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Alanine aminotransferase (ALT)", ['Liver Function Tests', 'Enzymes'], ['GPT/ALT'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Amylase", ['Pancreatic Function Test'], ['Amylase'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Antistreptolysin O (ASO)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+               // ["Antistreptolysin O (ASO)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Aspartate aminotransferase(AST)", ['Liver Function Tests', 'Enzymes'], ['AST-H', 'GOT/AST'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Bilirubin Total", ['Liver Function Tests', 'Enzymes'], ['TBIL-DSA-H', 'Bilirubin Total(TBIL-DSA))'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Bilirubin Direct", ['Liver Function Tests', 'Enzymes'], ['Bilirubin Direct(DBIL-DSA)', 'DBIL-DSA-H'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Bilirubin Total", ['Liver Function Tests', 'Enzymes'], ['TBIL-DSA-H', 'Bilirubin Total'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Bilirubin Direct", ['Liver Function Tests', 'Enzymes'], ['Bilirubin Direct', 'DBIL-DSA-H'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Calcium", ['Calcium'], ['Ca'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Chloride", ['Electrolytes'], ['Cl'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Cholesterol Total", ['Lipogram'], ['Cholesterol(CHOL)'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Cholesterol Total", ['Lipogram'], ['Cholesterol'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Cholesterol LDL", ['Lipogram'], ['LDL-C'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Cholesterol HDL", ['Lipogram'], ['HDL-C'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Cholinesterase", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["C Reactive Protein (CRP)", ['C-reactive protein'], ['CRP'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Creatinine", ['Renal Function Test'], ['Creatinine', 'CREA-S', 'CREA-J'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Creatine Kinase NAC", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Creatine Kinase MB", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Gamma Glutamyl Transferase", ['GGT/r-GT'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Haemoglobin A1c", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Iron", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Creatine Kinase", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Creatine Kinase", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Gamma Glutamyl Transferase", ['GGT/r-GT'], ['aval'], ['aval', ""], ["", ""],["", ""],""],
+               // ["Haemoglobin A1c", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                //["Iron", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Lipase", ['Pancreatic Function Test'], ['Lipase'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Lactate Dehydrogenase (LDH)", ['Liver Function Tests'], ['LDH'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Magnesium", ['Magnesium'], ['Mg'], ['aval', ""], ["", ""], ["", ""], ""],
@@ -229,77 +230,70 @@
                 ["Rheumatoid Factor", ['Rheumatoid Factor Test'], ['Rheumatoid Factor'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Sodium", ['Electrolytes'], ['Na'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Total Iron Binding Capacity", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Triglycerides", ['Lipogram'], ['Triglycerides(TG)'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Urea", ['Renal Function Test', 'Enzymes'], ['UREA-H', 'Urea'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Triglycerides", ['Lipogram'], ['Triglycerides(TG)'], ['aval', ""], ["", ""],["", ""],""],
+                ["Urea",['Renal Function Test','Enzymes'],['UREA-H','Urea'],['aval',""],["",""],["",""],""],
                 ["Uric acid", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
             ]
-        ],
-
+        ],        
         ["Microbiology",
             [
                 ["Number of AFB sputum examined", ['TB Tests'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Number of new TB cases examined", ['TB Tests'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["New cases with positive smear", ['TB Tests'], ['Smear microscopy result'], ['Positive', "has Scanty__has plus"], ["", ""], ["", ""], ""],
                 ["Pick-up rate", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of TB follow-up patients", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of uncategorised AFB sputum examined", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Total cartridges used", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["MTB Not Detected", ['TB Tests'], ['Gene Xpert MTB'], ['MTB NOT DETECTED__NOT_DETECTED', ""], ["", ""], ["", ""], ""],
-                ["MTB Detected", ['TB Tests'], ['Gene Xpert MTB'],
-                    ['MTB DETECTED__MTB DETECTED HIGH__MTB DETECTED VERY HIGH__MTB DETECTED LOW__MTB DETECTED VERY LOW__MTB DETECTED MEDIUM__MTB DETECTED__DETECTED LOW__DETECTED VERY LOW__DETECTED MEDIUM', ""],
+                ["Number of TB follow-up patients", ['TB Tests'], ['Reason For Testing'], ['Follow-up', ""], ["", ""], ["", ""], ""],
+                ["Number of uncategorised AFB sputum examined", ['TB Tests'], ['Indication for GeneXpert Test'], ['Not Indicated', ""], ["", ""], ["", ""], ""],
+                ["MTB Not Detected", ['TB Tests'], ['MTB'], ['MTB Not Detected', ""], ["", ""], ["", ""], ""],
+                ["MTB Detected", ['TB Tests'], ['MTB'],
+                    ['MTB DETECTED', ""],
                     ["", ""], ["", ""], ""],
-                ["RIF Resistant Detected", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['DETECTED__RIF RESISTANCE DETECTED', ""], ["", ""], ["", ""], ""],
-                ["RIF Resistant Not Detected", ['TB Tests'], ['Gene Xpert RIF Resistance'], ["NOT DETECTED_RIF RESISTANCE NOT DETECTED", ""], ["", ""], ["", ""], ""],
-                ["RIF Resistant Indeterminate", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['INDETERMINATE__RIF RESISTANCE INDETERMINATE', ""], ["", ""], ["", ""], ""],
-                ["Errors /Error Codes", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['ERROR__RIF RESISTANCE ERROR', ""], ["", ""], ["", ""], ""],
-                ["Invalid", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['INVALID__RIF RESISTANCE INVALID', ""], ["", ""], ["", ""], ""],
-                ["No Results", ['TB Tests'], ['Gene Xpert MTB'], ['NOT DONE', ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Detected", ['TB Tests'], ['RIF Resistance'], ['RIF Resistant detected', ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Not Detected", ['TB Tests'], ['RIF Resistance'], ['RIF Resistant not detected', ""], ["", ""], ["", ""], ""],
+                ["RIF Resistant Indeterminate", ['TB Tests'], ['RIF Resistance'], ['RIF Resistant indeterminate', ""], ["", ""], ["", ""], ""],
+                //["Invalid", ['TB Tests'], ['Gene Xpert RIF Resistance'], ['INVALID__RIF RESISTANCE INVALID', ""], ["", ""], ["", ""], ""],
+                ["No Results", ['TB Tests'], [''], ['', ""], ["", ""], ["", ""], ""],
                 ["CSF & Other Body Fluids", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "",
                     "CSF__Pericardial Fluid__Peritoneal Fluid__Pleural Fluid__Ascitic Fluid__Blood"],
                 ["Number of CSF samples analysed", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "CSF"],
                 ["Number of CSF samples analysed for AFB", ['ZN Stain'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "CSF"],
-                ["Number of CSF samples with organisms", ['Culture & Sensitivity'], ['Culture'], ['Growth', ""], ["", ""], ["", ""], ""],
-                ["HVS analysed", ['HVS Analysis'], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Other swabs", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "Swabs"],
-                ["Number of blood cultures done", ['Culture & Sensitivity'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "Blood"],
-                ["Positive blood cultures", ['Culture & Sensitivity'], ['Culture'], ['Growth', ""], ["", ""], ["", ""], "", "Blood"],
-                ["Other body fluids(pleural, Ascitic,synovial etc)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Total number of fluids analysed", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Fluids with organisms", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Number of CSF samples with organisms", ['Culture _ampersand_ Sensitivity'], ['Culture'], ['Growth', ""], ["", ""], ["", ""], ""],
+               // ["Other swabs", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "Swabs"],
+                ["total number of blood cultures done", ['Culture _ampersand_ Sensitivity'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "Blood"],
+                ["Positive blood cultures", ['Culture _ampersand_ Sensitivity'], ['Culture'], ['Growth', ""], ["", ""], ["", ""], "", "Blood"],
+                ["blood cultures with contaminates", ['Culture _ampersand_ Sensitivity'], ['Culture'], 
+                             ['Growth of contaminants', ""], ["", ""], ["", ""], "", "Blood"],
+                ["Percentage of contaminates over total blood cultures", ['Culture _ampersand_ Sensitivity'], ['aval'], ['aval', ""], ["", ""], ["", ""], "", "Blood"],
+                //["Other body fluids(pleural, Ascitic,synovial etc)", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Total number of sample fluids analysed", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "","fluid"],
+                ["Sample Fluids with organisms", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "","fluid"],
                 ["Cholera cultures done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
                 ["Positive cholera samples", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Other stool cultures", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Stool samples with organisms isolated on culture", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["Number of sensitivity tests done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
-            ]
-        ],
-        ["MOLECULAR / HIV",
-            [
-                ["DNA-EID samples received", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["DNA-EID samples tests done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["number with positive results", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["VL tests received", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["VL tests done", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
-                ["VL results with less than 1000 copies per ml", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""]
+                // ["Other stool cultures", [''], ['aval'], ['aval', ""], ["", ""], ["", ""], ""],
+                ["Stool samples with organisms isolated on culture", ['Culture _ampersand_ Sensitivity'], ['aval'], ['aval', ""], ["", ""], ["", ""], "",'Stool'],
+                ["Number of sensitivity tests done", ['Culture _ampersand_ Sensitivity'], ['Culture'], ['Growth', ""], ["", ""], ["", ""], ""],
+                ["Others (MC&S)", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "","Other"],
+                ["Other body fluids (Sterile Fluid Analysis)", ['aval'], ['aval'], ['aval', ""], ["", ""], ["", ""], "","Other"]
             ]
         ]
+        
     ];
-
+  var fMonth=0;
+  var sMonth=0;
+  var tMonth=0;
+  var total =0;
     row_count = 0;
-
+    var csv = [ ];
+    var d= 0;
     function __$(id){
         return document.getElementById(id);
     }
-
     function createTd(html, width, id){
         var n = document.createElement("td");
-
         if(html == "&nbsp;"){
             n.className = "table-cell data-cell data";
         }else{
             n.className = "table-cell data-cell";
         }
-
         n.innerHTML = html;
         n.style.width = width + "%";
         if(id){
@@ -307,21 +301,21 @@
         }
         return n;
     }
+    var sections = [];
+    var track = 0;
     function buildBlock(section, rows){
         var header = document.createElement("tr");
         header.className = "table-row header-row";
         header.colSpan = "6";
-
         var headerData = document.createElement("td");
         headerData.colSpan = "6";
         headerData.className = "table-cell"
         headerData.innerHTML = section;
+        sections[track] = section;
+         track+=1;
         headerData.style.paddingLeft = "3.6%";
-
         header.appendChild(headerData);
-
         __$("table").appendChild(header);
-
         for(var j = 0; j < rows.length; j++){
             row_count = row_count + 1;
             var options = rows[j];
@@ -336,11 +330,9 @@
             row.appendChild(createTd("&nbsp;", 12, (row_count + "_" + 1)));
             row.appendChild(createTd("&nbsp;", 12, (row_count + "_" + 2)));
             row.appendChild(createTd("&nbsp;", 12, (row_count + "_total")));
-
             __$("table").appendChild(row);
         }
     }
-
     for(var i = 0; i < map.length; i++){
         var block = map[i];
         buildBlock(block[0], block[1]);
@@ -348,6 +340,8 @@
     //load data
     total_count = document.getElementsByClassName("data").length;
     var cc = 0;
+    var row_counter=1;
+    var inf = [ ];
     for(var i = 0; i < map.length; i++){
         var block = map[i][1];
         for(var n = 0; n < block.length; n++){
@@ -356,8 +350,6 @@
             if(row.length != 7) {
                // continue;
             }
-
-
             //["Full Blood Count", ['FBC'], ['aval'], ['aval', null], null, null, null, [0, 0, 0]],
             var url = "/generic_report_data?display=" + row[0] +
                     "&test_type=" + row[1].join("__") + "&result_names=" + row[2].join("__") +
@@ -365,17 +357,66 @@
                     "&min_age=" + row[4][0] + "&min_age_modifier=" + row[4][1] +
                     "&max_age=" + row[5][0] + "&max_age_modifier=" + row[5][1] +
                     "&wards=" + row[6] + "&quarter=<%= params[:quarter]%>" +
-                    "&year=<%= params[:year]%>&sample_type=" + (row[7] || "");
+                    "&year=<%= params[:year]%>&sample_type=" + (row[7] || "") + "&id=" + n;      
 
-            ajaxify(cc, url);
-        }
+                         
+            var results = ajaxify(cc, url,row[0]); 
+
+     if (row_counter == 1)
+     {
+      csv[row_counter] = [sections[0],"","","",""];
+            row_counter +=1;
+     }   
+    else if ((map[0][1].length + 2)== row_counter)
+    {
+        csv[row_counter] = ["","","","",""];
+            row_counter +=1;
+
+        csv[row_counter] = [sections[1],"","","",""];
+            row_counter +=1;
+    }
+    else if (((map[0][1].length + 2) + (map[1][1].length + 2) )== row_counter)
+    {
+        csv[row_counter] = ["","","","",""];
+            row_counter +=1;
+
+        csv[row_counter] = [sections[2],"","","",""];
+            row_counter +=1;
+    }
+    else if (((map[0][1].length + 2) + (map[1][1].length + 2) + (map[2][1].length + 2))== row_counter)
+    {
+        csv[row_counter] = ["","","","",""];
+            row_counter +=1;
+
+        csv[row_counter] = [sections[3],"","","",""];
+            row_counter +=1;
+    }
+      else if (((map[0][1].length + 2) + (map[1][1].length + 2) + (map[2][1].length + 2) + (map[3][1].length + 2))== row_counter)
+    {
+        csv[row_counter] = ["","","","",""];
+            row_counter +=1;
+
+        csv[row_counter] = [sections[4],"","","",""];
+            row_counter +=1;
+    }  
+        csv[row_counter] = [row[0],results[0],results[1],results[2],(results[0]+results[1]+results[2])];
+       row_counter +=1;
+
+     
+
+      
+
+      }
     }
 
-    function ajaxify(row_num, url){
-        jQuery.ajax(
-                {
+                    
+    function ajaxify(row_num, url,display){  
+        var results = jQuery.parseJSON(jQuery.ajax(
+                {  async: false,
                     url: url,
                     success: function(data){
+
+                        
                         data = JSON.parse(data);
                         __$(row_num+"_"+0).innerHTML = data[0];
                         __$(row_num+"_"+1).innerHTML = data[1];
@@ -394,17 +435,41 @@
                         __$("progress-color").style.width = ((loaded/total_count)*100) + "%";
                     }
                 }
-        )
-    }
+        ).responseText);
 
+       return results;
+    }
     var row1 = __$("tbl").getElementsByTagName("tr")[0].getElementsByTagName("th");
     var row2 = __$("table").getElementsByClassName("data-cell");
-
     jQuery(__$("tbl")).css({
         width: (jQuery(__$("table")).width() + "px")
     });
 
 
+function create_csv() {
+ var final_csv ="PARAMETER,<%= @months[0].upcase%>,<%= @months[1].upcase%>,<%= @months[2].upcase%>,TOTAL\n"
+ var filename = "Lims_General_Counts_<%= params[:year]%>_<%= params[:quarter]%>"     
+        csv.forEach(function(row)
+        {   final_csv += row.join(',');
+            final_csv += "\n";
+        });
+        var link = document.createElement('a');
+        if (typeof link.download === 'string')
+        {   link.href = 'data:text/csv;charset=UTF-8,' + encodeURIComponent(final_csv);
+            link.download = filename+".csv";
+            document.body.appendChild(link);
+            //simulate click
+            link.click();
+            //remove the link when done
+            document.body.removeChild(link);
+          } else 
+          {window.open('data:text/csv;charset=UTF-8,' + encodeURIComponent(final_csv));
+          }
+}
+
 </script>
+
+
+
 
 

@@ -12,6 +12,8 @@ Rails.application.routes.draw do
 
    get '/general_counts' => 'report#general_counts'
 
+   post '/def' => 'report#def'
+
    get '/generic_report_data' => 'report#general_report_data'
 
    get '/login' => "user#login"
@@ -21,6 +23,8 @@ Rails.application.routes.draw do
    get '/verify_user' => "user#verify_user"
 
    get "user/index"
+
+   post "report/exp"
 
    get "user/login"
 

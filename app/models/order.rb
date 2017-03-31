@@ -15,6 +15,7 @@ class Order < CouchRest::Model::Base
     result_names = self['results'].keys
     result_names.each do |rn |
       ts = self['results'][rn].keys
+      
       ts.each do |t|
         ts = ts - [t] if self['results'][rn][t]['results'].blank?
       end
