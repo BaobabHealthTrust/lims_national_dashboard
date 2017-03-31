@@ -85,4 +85,68 @@ class TestController < ApplicationController
       end
     end
   end
+
+  def build_mysql_database
+    configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]
+
+    tables = [
+        "
+        CREATE TABLE order (
+          id ,
+          tracking_number VARCHAR(255), etc)
+        ",
+
+        "
+        CREATE TABLE test (id, order_id, etc)
+        ",
+
+        "
+        CREATE TABLE test_trail (id, test_id, etc)
+        ",
+
+        "
+        CREATE TABLE test_result (id, test_id, etc)
+        "
+    ]
+
+    `mysql -u #{config['user']} -p#{config['password']} -e 'DROP database if exists #{config['database']}'`
+    `mysql -u #{config['user']} -p#{config['password']} -e 'CREATE database #{config['database']}'`
+
+    tables.each do |table|
+      `mysql -u #{config['user']} -p#{config['password']} #{config['database']} << #{table}`
+    end
+
+    if !File.exists?("#{Rails.root}/app/assets/order.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/order.sql"
+    end
+
+    if !File.exists?("#{Rails.root}/app/assets/test.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/test.sql"
+    end
+
+    if !File.exists?("#{Rails.root}/app/assets/test_result.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/test_result.sql"
+    end
+
+    if !File.exists?("#{Rails.root}/app/assets/order.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/order.sql"
+    end
+
+    Order.by_datetime_and_sending_facility.each do |order|
+
+      #Insert order details
+     "
+      INSERT INTO order VALUES ()
+    "
+
+     "
+      INSERT INTO test VALUES ()
+    "
+
+     "
+      INSERT INTO test_trail VALUES ()
+    "
+
+    end
+  end
 end
