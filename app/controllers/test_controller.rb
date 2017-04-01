@@ -1,3 +1,4 @@
+require "mysql"
 class TestController < ApplicationController
   def tests
     @cur_page = (params[:page].present? ? params[:page] : 1).to_i
@@ -90,26 +91,51 @@ class TestController < ApplicationController
     configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]
 
     tables = [
-        "
-        CREATE TABLE order (
-          id ,
-          tracking_number VARCHAR(255), etc)
-        ",
+        "CREATE TABLE order (
+          id int(10) NOT NULL AUTO_INCREMENT,
+          tracking_number VARCHAR(255),
+          sending_facility VARCHAR(255),
+          receiving_facility VARCHAR(255),
+          sample_type VARCHAR(255),
+          who_order_test_fName VARCHAR(255),
+          who_order_test_SName VARCHAR(255),
+          who_order_test_id VARCHAR(255),
+          who_order_test_phoneNumber int 
+        )",
 
-        "
-        CREATE TABLE test (id, order_id, etc)
-        ",
+        "CREATE TABLE test (
+          id int(10) NOT NULL AUTO_INCREMEN
+          order_id VARCHAR(255),
+          test_name VARCHAR(255),
+          status VARCHAR(40),
+          date_time_started datetime,
+          date_time_completed datetime,
+          panel VARCHAR(255)
+        )",
 
-        "
-        CREATE TABLE test_trail (id, test_id, etc)
-        ",
+        "CREATE TABLE test_trail (
+          id int(10) NOT NULL AUTO_INCREMEN,
+          test_id VARCHAR(255),
+          time_stamp datetime,
+          test_status VARCHAR(40),
+          test_remarks VARCHAR(255),
+          who_updated_fName VARCHAR(255),
+          who_updated_sName VARCHAR(255),
+          who_updated_id VARCHAR(255)
+        )",
 
-        "
-        CREATE TABLE test_result (id, test_id, etc)
-        "
+        "CREATE TABLE test_result (
+         id int(10) NOT NULL AUTO_INCREMEN,
+         test_id  VARCHAR(255),
+         result_name VARCHAR(100),
+         result_value VARCHAR(255),
+         test_remarks VARCHAR(255)
+        )"
     ]
 
-    `mysql -u #{config['user']} -p#{config['password']} -e 'DROP database if exists #{config['database']}'`
+    db = Mysql2::Client.new(:host=>config["host"], :username=>config["username"], :password=>config["password"])
+
+    `mysql -u #{config["user"]} -p#{config["password"]} -e 'DROP database if exists #{config['database']}'`
     `mysql -u #{config['user']} -p#{config['password']} -e 'CREATE database #{config['database']}'`
 
     tables.each do |table|
@@ -118,35 +144,93 @@ class TestController < ApplicationController
 
     if !File.exists?("#{Rails.root}/app/assets/order.sql")
       FileUtils.touch "#{Rails.root}/app/assets/order.sql"
+      File.open("#{Rails.root}/app/assets/order.sql","a") do |txt| txt.puts "\r" + "USE #{configs['database']}" end
     end
 
     if !File.exists?("#{Rails.root}/app/assets/test.sql")
-      FileUtils.touch "#{Rails.root}/app/assets/test.sql"
+      FileUtils.touch("#{Rails.root}/app/assets/test.sql")
+      File.open("#{Rails.root}/app/assets/test.sql","a") do |txt| txt.puts "\r" + "USE #{configs['database']}" end
+    end
+
+    if !File.exists?("#{Rails.root}/app/assets/test_trail.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/test_trail.sql"
+      File.open("#{Rails.root}/app/assets/test_trail.sql","a") do |txt| txt.puts "\r" + "USE #{configs['database']}" end
     end
 
     if !File.exists?("#{Rails.root}/app/assets/test_result.sql")
       FileUtils.touch "#{Rails.root}/app/assets/test_result.sql"
-    end
-
-    if !File.exists?("#{Rails.root}/app/assets/order.sql")
-      FileUtils.touch "#{Rails.root}/app/assets/order.sql"
+      File.open("#{Rails.root}/app/assets/test_result.sql","a") do |txt| txt.puts "\r" + "USE #{configs['database']}" end
     end
 
     Order.by_datetime_and_sending_facility.each do |order|
 
-      #Insert order details
-     "
-      INSERT INTO order VALUES ()
-    "
+        File.open("#{Rails.root}/app/assets/order.sql","a") do |txt|  
 
-     "
-      INSERT INTO test VALUES ()
-    "
+          txt.puts "\r" +  "INSERT INTO order VALUES(
+                                 #{order['_id']},
+                                 #{order['sending_facility']},
+                                 #{order['receiving_facility']},
+                                 #{order['sample_type']},
+                                 #{order['who_order_test']['first_name']},
+                                 #{order['who_order_test']['last_name']},
+                                 #{order['who_order_test']['id']},
+                                 #{order['who_order_test']['phone_number']}
+                            )"
+        end
 
-     "
-      INSERT INTO test_trail VALUES ()
-    "
 
-    end
+        order['results'].each do |tests|   
+          test_name = tests[0]
+          ts_counts = tests[1].length
+          time_stamps = tests[1].to_a        
+          date_time_completed = nil if (ts_counts < 4)                      
+          date_time_completed = time_stamps[ts_counts-1][1]['date_time_completed'] if (ts_counts >=5)
+          panel = ""
+          counter = 0
+          
+
+            File.open("#{Rails.root}/app/assets/test.sql","a") do |txt| 
+              txt.puts "\r" +  "INSERT INTO test VALUES(
+                                  #{order['_id']},
+                                  #{test_name},
+                                  #{time_stamps[ts_counts-1][1]['test_status']},
+                                  #{time_stamps[0][1]['datetime_started']},
+                                  #{date_time_completed},
+                                  #{panel},
+                                )"
+            end
+
+            for counter in 0...ts_counts 
+              File.open("#{Rails.root}/app/assets/test_trail.sql","a") do |txt|              
+                txt.puts "\r" + "INSERT INTO test_trail VALUES(
+                                    #{order['_id']},
+                                    #{time_stamps[counter][0]},
+                                    #{time_stamps[counter][1]['test_status']},
+                                    #{time_stamps[counter][1]['remarks']},
+                                    #{time_stamps[counter][1]['who_updated']['first_name'] rescue nil},
+                                    #{time_stamps[counter][1]['who_updated']['last_name'] rescue nil},
+                                    #{time_stamps[counter][1]['who_updated']['id'] rescue nil}
+                                  )"
+               end
+            end
+
+           
+            if (ts_counts >=4)
+                result_names_count = time_stamps[ts_counts-1][1]['results'].keys.length
+                result_names =  time_stamps[ts_counts-1][1]['results'].keys.to_a
+                
+                for count in 0...result_names_count
+                  File.open("#{Rails.root}/app/assets/test_result.sql", "a") do |txt|
+                    txt.puts "\r" + "INSERT INTO test_result VALUES(
+                                       #{order['_id']},
+                                       #{result_names[count]},
+                                       #{time_stamps[ts_counts-1][1]['results'][result_names[count]]},
+                                       #{time_stamps[ts_counts-1][1]['remarks']}
+                                  )"
+                  end
+                end    
+            end
+        end      
+    end   
   end
 end
