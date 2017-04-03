@@ -60,5 +60,19 @@ Rails.application.routes.draw do
 
   get '/build_mysql_database' => 'test#build_mysql_database'
   post '/build_mysql_database' => 'test#build_mysql_database'
+  get '/getStructure' => 'test#getStructure'
+  get '/load_orders' => 'test#load_orders'
+  get '/orders_total' => 'test#orders_total'
+
+  get '/tests_total' => 'test#tests_total'
+  get '/load_tests' => 'test#load_tests'
+
+  get '/test_results_total' => 'test#test_results_total'
+  get 'load_tests_results' => 'test#load_tests_results'
+
+  get '/trails_total' => 'test#trails_total'
+  get '/load_trails' => 'test#load_trails'
+
+  
 
 end
