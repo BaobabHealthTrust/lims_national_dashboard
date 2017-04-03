@@ -19,10 +19,7 @@
     var loader = d3.xml("/images/Malawi.svg", function(xml) {
         document.getElementById("main").appendChild(xml.documentElement);
 
-
-        <% @sites.each do |site| %>
-
-        <%
+        <% @sites.each do |site|
 
           refPoints = [-9.331537, -17.158189, 32.674051, 35.969950];
           offsets = [10, 295, 10, 710];
@@ -35,14 +32,11 @@
 
         %>
 
-        var color = "green";
-        if(alerts[ "<%= site['name']%>"] == "normal"){
-            color = "green";
-        }else if (alerts[ "<%= site['name']%>"] == "average"){
-            color = "yellow";
-        }else if (alerts[ "<%= site['name']%>"] == "urgent") {
-            color = "red";
-        }
+        var color = "red";
+
+        <% if site['online']%>
+            color = 'green';
+        <% end %>
 
         d3.select("#malawi").append("circle")
                 .style("stroke", "white")
