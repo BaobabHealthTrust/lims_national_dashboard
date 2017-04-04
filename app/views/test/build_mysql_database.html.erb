@@ -31,7 +31,7 @@
 
 			<div class="col-sm-2" style="margin-top: 45px; margin-right: 2%;">
 				<button type="submit" class="btn btn-primary" onclick="createStructure()">Structure From Couch </button> 
-				<button id="load" type="submit" class="btn btn-success" onclick="loadData()" style="margin-top: 30px;visibility: hidden;">Load Data From Couch</button> 
+				<button id="load" type="submit" class="btn btn-success" onclick="loadData()" style="margin-top: 30px;">Load Data From Couch</button> 
 
 			</div>
 
@@ -355,9 +355,7 @@
 		jQuery.ajax(
                 {  async: false,
                     url: structure_url,
-                    success: function(data){
-                        var btn = document.getElementById("load");
-                        btn.style.visibility ="visible";
+                    
                     },
                     error: function(e){
                         
