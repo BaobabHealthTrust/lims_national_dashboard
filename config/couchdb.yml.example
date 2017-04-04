@@ -6,6 +6,8 @@ development: &development
   suffix: repo
   username: root
   password: password
+  bidirectional_sync: false
+  sync_interval_in_minutes: 15  
 test:
   <<: *development
   suffix: test

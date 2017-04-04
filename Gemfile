@@ -6,15 +6,18 @@ gem 'rails', '4.2.6'
 gem 'bootstrap', '4.0.0.alpha3'
 gem 'sprockets-rails', '>= 2.3.2'
 gem 'simple-spreadsheet'
+gem 'sucker_punch', '~> 2.0'
 # tooltips and popovers depend on tether
 source 'https://rails-assets.org' do
   gem 'rails-assets-tether', '>= 1.1.0'
 end
-
+gem 'passenger', '4.0.48'
 gem 'couchrest_model'
 gem 'rest-client'
 gem 'mysql2'
-# Use SCSS for stylesheets
+gem 'net-ping'
+
+Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
