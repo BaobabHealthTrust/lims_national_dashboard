@@ -89,8 +89,7 @@ class TestController < ApplicationController
 
   def build_mysql_database
       
-       @total_orders = Order.by_datetime_and_sending_facility
-       @total_orders = @total_orders.length
+       @total_orders = Order.by_datetime_and_sending_facility.count
   end
 
   def getStructure
