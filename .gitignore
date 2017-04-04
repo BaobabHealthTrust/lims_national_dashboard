@@ -16,3 +16,4 @@ config/application.yml
 public/api/*.json
 *.lock
 *~
+*.yml
