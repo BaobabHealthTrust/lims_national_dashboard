@@ -1,0 +1,25 @@
+production:
+  adapter: mysql
+  username: user
+  database: central_db
+  password: amin9090!
+  host: localhost
+  pool: 500
+
+development:
+  adapter: mysql
+  username: root
+  database: central_db
+  password: amin9090!
+  host: localhost
+  pool: 500
+
+test: &TEST
+  adapter: mysql
+  database: root
+  username: bart2_db
+  password: your_password
+  host: localhost
+
+cucumber:
+  <<: *TEST

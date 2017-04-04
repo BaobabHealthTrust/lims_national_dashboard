@@ -4,8 +4,11 @@ development: &development
   port: 5984
   prefix: lims
   suffix: repo
-  username: gibo
-  password: amin9090!
+  username: root
+  password: password 
+  bidirectional_sync: false
+  sync_interval_in_minutes: 15
+
 test:
   <<: *development
   suffix: test
