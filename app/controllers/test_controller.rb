@@ -90,7 +90,7 @@ class TestController < ApplicationController
   def build_mysql_database
       
        @total_orders = Order.by_datetime_and_sending_facility
-
+       @total_orders = @total_orders.length
   end
 
   def getStructure
@@ -152,17 +152,29 @@ class TestController < ApplicationController
   
     if !File.exists?("#{Rails.root}/app/assets/orders.sql")
       FileUtils.touch "#{Rails.root}/app/assets/orders.sql"
+    else
+      FileUtils.rm("#{Rails.root}/app/assets/orders.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/orders.sql"
     end
 
     if !File.exists?("#{Rails.root}/app/assets/tests.sql")
       FileUtils.touch("#{Rails.root}/app/assets/tests.sql")
+    else
+      FileUtils.rm("#{Rails.root}/app/assets/tests.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/tests.sql"
     end
 
     if !File.exists?("#{Rails.root}/app/assets/test_trails.sql")
       FileUtils.touch "#{Rails.root}/app/assets/test_trails.sql"
+    else
+      FileUtils.rm("#{Rails.root}/app/assets/test_trails.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/test_trails.sql"
     end
 
     if !File.exists?("#{Rails.root}/app/assets/test_results.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/test_results.sql"
+    else
+      FileUtils.rm("#{Rails.root}/app/assets/test_results.sql")
       FileUtils.touch "#{Rails.root}/app/assets/test_results.sql"
     end
 
