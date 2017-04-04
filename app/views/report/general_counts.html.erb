@@ -283,7 +283,7 @@
   var total =0;
     row_count = 0;
     var csv = [ ];
-    var d= 0;
+    var d = 0;
     function __$(id){
         return document.getElementById(id);
     }
@@ -415,8 +415,6 @@
                 {  async: false,
                     url: url,
                     success: function(data){
-
-                        
                         data = JSON.parse(data);
                         __$(row_num+"_"+0).innerHTML = data[0];
                         __$(row_num+"_"+1).innerHTML = data[1];
@@ -447,8 +445,9 @@
 
 
 function create_csv() {
- var final_csv ="PARAMETER,<%= @months[0].upcase%>,<%= @months[1].upcase%>,<%= @months[2].upcase%>,TOTAL\n"
- var filename = "Lims_General_Counts_<%= params[:year]%>_<%= params[:quarter]%>"     
+
+        var final_csv ="PARAMETER,<%= @months[0].upcase%>,<%= @months[1].upcase%>,<%= @months[2].upcase%>,TOTAL\n"
+        var filename = "Lims_General_Counts_<%= params[:year]%>_<%= params[:quarter]%>"     
         csv.forEach(function(row)
         {   final_csv += row.join(',');
             final_csv += "\n";

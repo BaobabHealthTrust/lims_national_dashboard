@@ -14,3 +14,5 @@
 config/couchdb.yml
 config/application.yml
 public/api/*.json
+*.lock
+*~
