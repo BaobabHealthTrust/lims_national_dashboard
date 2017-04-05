@@ -5,10 +5,10 @@
 
 # Example:
 #
-# set :output, "/path/to/my/cron_log.log"
+set :output, "/var/www/lims_national_dashboard/output.log"
 #
  every 1.minute do
-   rake "api:vlstats"
+   rake "dashboard:jobs"
  end
 #
 # every 4.days do

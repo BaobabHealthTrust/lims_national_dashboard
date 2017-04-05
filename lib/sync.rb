@@ -36,7 +36,7 @@ class Sync
   end
 
   def self.up?(host, port=5984)
-    a, b, c = Open3.capture3("nc -vw 1 #{host} #{port}")
+    a, b, c = Open3.capture3("nc -vw 3 #{host} #{port}")
     b.scan(/succeeded/).length > 0
   end
 
