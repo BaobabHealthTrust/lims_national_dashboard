@@ -3,6 +3,7 @@
 
 require 'net/ping'
 require 'socket'
+require 'open3'
 
 class Sync
 
@@ -34,9 +35,9 @@ class Sync
     end
   end
 
-  def self.up?(host)
-    check = Net::Ping::External.new(host)
-    check.ping?
+  def self.up?(host, port=5984)
+    a, b, c = Open3.capture3("nc -vw 1 #{host} #{port}")
+    b.scan(/succeeded/).length > 0
   end
 
   def self.local_ip

@@ -34,7 +34,9 @@
 
         var color = "red";
 
-        <% if site['online']%>
+        <%
+        if site['online']%>
+        console.log(color)
             color = 'green';
         <% end %>
 

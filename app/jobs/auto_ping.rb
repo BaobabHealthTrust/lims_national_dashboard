@@ -30,7 +30,7 @@ class AutoPing
         AutoPing.perform_in(30)
       end
     rescue
-      SuckerPunch.logger.info "Error found"
+      SuckerPunch.logger.info "Error while perfoming ping"
       AutoPing.perform_in(30)
     end
   end
