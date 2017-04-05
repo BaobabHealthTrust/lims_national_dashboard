@@ -17,6 +17,7 @@ class ReportController < ApplicationController
 
   end
 
+  
   def general_report_data
      
 

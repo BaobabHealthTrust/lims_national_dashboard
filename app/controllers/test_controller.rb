@@ -92,6 +92,62 @@ class TestController < ApplicationController
        @total_orders = Order.by_datetime_and_sending_facility.count
   end
 
+  def createHeaders
+     File.open("#{Rails.root}/app/assets/orders.sql","a") do |txt|  
+         
+          txt.puts "\r" +  "INSERT INTO orders VALUES"
+     end
+
+     File.open("#{Rails.root}/app/assets/tests.sql","a") do |txt|  
+         
+          txt.puts "\r" +  "INSERT INTO tests VALUES"
+     end
+
+     File.open("#{Rails.root}/app/assets/test_trails.sql","a") do |txt|  
+         
+          txt.puts "\r" +  "INSERT INTO test_trails VALUES"
+     end
+
+     File.open("#{Rails.root}/app/assets/test_results.sql","a") do |txt|  
+         
+          txt.puts "\r" +  "INSERT INTO test_results VALUES"
+     end
+
+     File.open("#{Rails.root}/app/assets/patients.sql","a") do |txt|  
+         
+          txt.puts "\r" +  "INSERT INTO patients VALUES"
+     end
+
+  end
+
+ def appendSemicolon
+     File.open("#{Rails.root}/app/assets/orders.sql","a") do |txt|  
+         
+          txt.puts "\r" +  ";"
+     end
+
+     File.open("#{Rails.root}/app/assets/tests.sql","a") do |txt|  
+         
+          txt.puts "\r" +  ";"
+     end
+
+     File.open("#{Rails.root}/app/assets/test_trails.sql","a") do |txt|  
+         
+          txt.puts "\r" +  ";"
+     end
+
+     File.open("#{Rails.root}/app/assets/test_results.sql","a") do |txt|  
+         
+          txt.puts "\r" +  ";"
+     end
+
+     File.open("#{Rails.root}/app/assets/patients.sql","a") do |txt|  
+         
+          txt.puts "\r" +  ";"
+     end
+
+  end
+
   def getStructure
      configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]
 
@@ -105,7 +161,17 @@ class TestController < ApplicationController
           who_order_test_fName VARCHAR(255),
           who_order_test_SName VARCHAR(255),
           who_order_test_id VARCHAR(255),
-          who_order_test_phoneNumber int 
+          who_order_test_phoneNumber VARCHAR(255),
+          art_start_date datetime,
+          date_dispatched datetime,
+          date_drawn datetime,
+          date_received datetime,
+          date_time datetime,
+          district VARCHAR(255),
+          order_location VARCHAR(255),
+          priority VARCHAR(50),
+          reason_for_test VARCHAR(255),
+          status VARCHAR(255)
         )",
 
         "CREATE TABLE tests (
@@ -135,7 +201,20 @@ class TestController < ApplicationController
          result_name VARCHAR(100),
          result_value VARCHAR(255),
          test_remarks VARCHAR(255)
+        )",
+
+        "CREATE TABLE patients (
+         id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+         order_id VARCHAR(100),
+         national_id  VARCHAR(255),
+         first_name VARCHAR(100),
+         last_value VARCHAR(255),
+         middle_name VARCHAR(255),
+         date_of_birth datetime,
+         gender VARCHAR(50),
+         phone_number VARCHAR(100)
         )"
+
     ]
   
 
@@ -177,30 +256,55 @@ class TestController < ApplicationController
       FileUtils.touch "#{Rails.root}/app/assets/test_results.sql"
     end
 
+    if !File.exists?("#{Rails.root}/app/assets/patients.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/patients.sql"
+    else
+      FileUtils.rm("#{Rails.root}/app/assets/patients.sql")
+      FileUtils.touch "#{Rails.root}/app/assets/patients.sql"
+    end
+
     order_id = 1
     testid = 1
     results_incrementor = 0
     trials_incrementor = 0
+    patient_incrementor = 0
+    checker = 0
+    order_values = []
+    order_counter = 0
+    test_counter = 0
+    trail_counter = 0
+    results_counter = 0
+    patient_counter =0
+    
+    createHeaders()
 
     Order.by_datetime_and_sending_facility.each do |order|
+
         empty = "'" + "'"
         File.open("#{Rails.root}/app/assets/orders.sql","a") do |txt|  
 
-          sending_facility = "'" + order['sending_facility'] + "'"
-          
-          
-          txt.puts "\r" +  "INSERT INTO orders VALUES(
-                                 #{order_id},
-                                 #{"'" + order['_id'] + "'" rescue empty},
-                                 #{sending_facility rescue empty},
-                                 #{"'" + order['receiving_facility'] + "'" rescue empty},
-                                 #{"'" + order['sample_type'] + "'" rescue empty},
-                                 #{"'" + order['who_order_test']['first_name'] + "'" rescue empty},
-                                 #{"'" + order['who_order_test']['last_name'] + "'" rescue empty},
-                                 #{"'" + order['who_order_test']['id'] + "'" rescue empty},
-                                 #{"'" + order['who_order_test']['phone_number'] + "'" rescue empty}
-                            ):"
+          sending_facility = "'" + escape_characters(order['sending_facility']) + "'"
+          if (order_counter==0)
+              txt.puts "\r" +  "(#{escape_characters(order_id)},#{"'" + escape_characters(order['_id']) + "'" rescue empty},#{sending_facility rescue empty},#{"'" + escape_characters(order['receiving_facility']) + "'" rescue empty},#{"'" + escape_characters(order['sample_type']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['first_name']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['last_name']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['id']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['phone_number']) + "'" rescue 0},#{"'" + escape_characters(order['art_start_date']) + "'" rescue empty},#{"'" + escape_characters(order['date_dispatched']) + "'" rescue empty},#{"'" + escape_characters(order['date_drawn']) + "'" rescue empty},#{"'" + escape_characters(order['date_received']) + "'" rescue empty},#{"'" + escape_characters(order['date_time']) + "'" rescue empty},#{"'" + escape_characters(order['district']) + "'" rescue empty},#{"'" + escape_characters(order['order_location']) + "'" rescue empty},#{"'" + escape_characters(order['priority']) + "'" rescue empty},#{"'" + escape_characters(order['reason_for_test']) + "'" rescue empty},#{"'" + escape_characters(order['status']) + "'" rescue empty})"
+              order_counter = order_counter + 1
+          else
+               txt.puts "\r" +  ",(#{escape_characters(order_id)},#{"'" + escape_characters(order['_id']) + "'" rescue empty},#{sending_facility rescue empty},#{"'" + escape_characters(order['receiving_facility']) + "'" rescue empty},#{"'" + escape_characters(order['sample_type']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['first_name']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['last_name']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['id']) + "'" rescue empty},#{"'" + escape_characters(order['who_order_test']['phone_number']) + "'" rescue 0},#{"'" + escape_characters(order['art_start_date']) + "'" rescue empty},#{"'" + escape_characters(order['date_dispatched']) + "'" rescue empty},#{"'" + escape_characters(order['date_drawn']) + "'" rescue empty},#{"'" + escape_characters(order['date_received']) + "'" rescue empty},#{"'" + escape_characters(order['date_time']) + "'" rescue empty},#{"'" + escape_characters(order['district']) + "'" rescue empty},#{"'" + escape_characters(order['order_location']) + "'" rescue empty},#{"'" + escape_characters(order['priority']) + "'" rescue empty},#{"'" + escape_characters(order['reason_for_test']) + "'" rescue empty},#{"'" + escape_characters(order['status']) + "'" rescue empty})"
+          end
+
         end
+
+        patient_incrementor = patient_incrementor + 1
+        File.open("#{Rails.root}/app/assets/patients.sql","a") do |txt|  
+
+          if (patient_counter==0)
+              txt.puts "\r" +  "(#{patient_incrementor},#{"'" + escape_characters(order['_id']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['national_patient_id']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['first_name']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['last_name']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['middle_name']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['date_of_birth']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['gender']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['phone_number']) + "'" rescue empty})"
+              patient_counter =  patient_counter + 1
+          else
+              txt.puts "\r" +  ",(#{patient_incrementor},#{"'" + escape_characters(order['_id']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['national_patient_id']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['first_name']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['last_name']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['middle_name']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['date_of_birth']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['gender']) + "'" rescue empty},#{"'" + escape_characters(order['patient']['phone_number']) + "'" rescue empty})"
+          end
+
+        end
+
         order_id = order_id + 1
         order['results'].each do |tests| 
             
@@ -213,167 +317,134 @@ class TestController < ApplicationController
           counter = 0          
 
             File.open("#{Rails.root}/app/assets/tests.sql","a") do |txt| 
-              txt.puts "\r" +  "INSERT INTO tests VALUES(
-                                  #{testid},
-                                  #{"'" + order['_id']  + "'" rescue empty},
-                                  #{"'" + test_name  + "'" rescue empty},
-                                  #{"'" + time_stamps[ts_counts-1][1]['test_status']  + "'" rescue empty},
-                                  #{"'" + time_stamps[0][1]['datetime_started']  + "'" rescue empty},
-                                  #{"'" + date_time_completed  + "'" rescue empty},
-                                  #{"'" + panel  + "'" rescue empty}
-                                ):"
+              
+              if (test_counter ==0)
+                  txt.puts "\r" +  "(#{escape_characters(testid)},#{"'" + escape_characters(order['_id'])  + "'" rescue empty},#{"'" + escape_characters(test_name)  + "'" rescue empty},#{"'" + escape_characters(time_stamps[ts_counts-1][1]['test_status'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[0][1]['datetime_started'])  + "'" rescue empty},#{"'" + escape_characters(date_time_completed)  + "'" rescue empty},#{"'" + escape_characters(panel)  + "'" rescue empty})"
+                  test_counter = test_counter + 1
+              else
+                  txt.puts "\r" +  ",(#{escape_characters(testid)},#{"'" + escape_characters(order['_id'])  + "'" rescue empty},#{"'" + escape_characters(test_name)  + "'" rescue empty},#{"'" + escape_characters(time_stamps[ts_counts-1][1]['test_status'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[0][1]['datetime_started'])  + "'" rescue empty},#{"'" + escape_characters(date_time_completed)  + "'" rescue empty},#{"'" + escape_characters(panel)  + "'" rescue empty})"
+              end
+
             end
 
             for counter in 0...ts_counts 
               trials_incrementor = trials_incrementor+1
               File.open("#{Rails.root}/app/assets/test_trails.sql","a") do |txt|              
-                txt.puts "\r" + "INSERT INTO test_trails VALUES(
-                                    #{trials_incrementor},
-                                    #{"'" + testid.to_s  + "'" rescue empty},
-                                    #{"'" + time_stamps[counter][0]  + "'" rescue empty},
-                                    #{"'" + time_stamps[counter][1]['test_status']  + "'" rescue empty},
-                                    #{"'" + time_stamps[counter][1]['remarks']  + "'" rescue empty},
-                                    #{"'" + time_stamps[counter][1]['who_updated']['first_name']  + "'" rescue empty},
-                                    #{"'" + time_stamps[counter][1]['who_updated']['last_name']  + "'" rescue empty},
-                                    #{"'" + time_stamps[counter][1]['who_updated']['id']  + "'" rescue empty}
-                                  ):"
+                if (trail_counter==0)  
+                  txt.puts "\r" + "(#{trials_incrementor},#{"'" + escape_characters(testid.to_s)  + "'" rescue empty},#{"'" + time_stamps[counter][0]  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['test_status'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['remarks'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['who_updated']['first_name'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['who_updated']['last_name'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['who_updated']['id'])  + "'" rescue empty})"
+                  trail_counter = trail_counter + 1
+                else
+                  txt.puts "\r" + ",(#{trials_incrementor},#{"'" + escape_characters(testid.to_s)  + "'" rescue empty},#{"'" + time_stamps[counter][0]  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['test_status'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['remarks'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['who_updated']['first_name'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['who_updated']['last_name'])  + "'" rescue empty},#{"'" + escape_characters(time_stamps[counter][1]['who_updated']['id'])  + "'" rescue empty})"
+                end
+
               end
 
             end
            
             if (ts_counts >=4)
-                result_names_count = time_stamps[ts_counts-1][1]['results'].keys.length
-                result_names =  time_stamps[ts_counts-1][1]['results'].keys.to_a
+                result_names_count = time_stamps[ts_counts-1][1]['results'].keys.length rescue "0"
+                if (result_names_count == "0")
                 
-                for count in 0...result_names_count
-                  results_incrementor = results_incrementor+1
-                  File.open("#{Rails.root}/app/assets/test_results.sql", "a") do |txt|
-                    txt.puts "\r" + "INSERT INTO test_results VALUES(
-                                       #{results_incrementor},
-                                       #{"'" + testid.to_s + "'" rescue empty},
-                                       #{"'" + result_names[count] + "'" rescue empty},
-                                       #{"'" + time_stamps[ts_counts-1][1]['results'][result_names[count]] + "'" rescue empty},
-                                       #{"'" + time_stamps[ts_counts-1][1]['remarks'] + "'" rescue empty}
-                                  ):"
-                  end
-                end    
+                else
+                 result_names =  time_stamps[ts_counts-1][1]['results'].keys.to_a
+                  
+                  for count in 0...result_names_count
+                    results_incrementor = results_incrementor+1
+                    File.open("#{Rails.root}/app/assets/test_results.sql", "a") do |txt|
+                      if(results_counter==0) 
+                        txt.puts "\r" + "(#{results_incrementor},#{"'" + escape_characters(testid.to_s) + "'" rescue empty},#{"'" + escape_characters(result_names[count]) + "'" rescue empty},#{"'" + escape_characters(time_stamps[ts_counts-1][1]['results'][result_names[count]]) + "'" rescue empty},#{"'" + escape_characters(time_stamps[ts_counts-1][1]['remarks']) + "'" rescue empty})"
+                        results_counter = results_counter + 1
+                      else
+                        txt.puts "\r" + ",(#{results_incrementor},#{"'" + escape_characters(testid.to_s) + "'" rescue empty},#{"'" + escape_characters(result_names[count]) + "'" rescue empty},#{"'" + escape_characters(time_stamps[ts_counts-1][1]['results'][result_names[count]]) + "'" rescue empty},#{"'" + escape_characters(time_stamps[ts_counts-1][1]['remarks']) + "'" rescue empty})"
+                      end
+                            
+                    end
+                  end  
+                end
+
             end
             testid = testid+1            
-        end      
+        end  
+        checker = checker + 1    
     end  
+    appendSemicolon()
 
     render :text => tables  
   end
 
+  def escape_characters(value)
 
+      value = value.to_s.gsub(/'/,"")
+      value = value.to_s.gsub(/,/," ")
+      value = value.to_s.gsub(/;/," ")
+      value = value.to_s.gsub(")"," ")
+      value = value.to_s.gsub("("," ")
+      value = value.to_s.gsub("/"," ")
+      value = value.to_s.gsub('\\'," ")
+
+
+    return value
+  end
 
   def load_orders
-
-    orders = File.read("#{Rails.root}/app/assets/orders.sql")
-    order = orders.split(":")
-    order = order[params[:number].to_i]
-    pushOrders(order)
-    
-    render :text => order
-
-  end
-
-  def pushOrders(data)
-
+    tests = File.read("#{Rails.root}/app/assets/orders.sql")
     configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]    
     client = Mysql2::Client.new(:host => "localhost", :username => "#{configs['username']}", :password => "#{configs['password']}", :database => "#{configs['database']}")
-    client.query(data.to_s)
+    client.query(tests)
+
+    render :text => "fine"
+  end
+
+  def demo
 
   end
 
-  def orders_total
-    orders = File.read("#{Rails.root}/app/assets/orders.sql")
-    order = orders.split(":")
-  
-    render :text => order.length
-    
+  def demoStructure
+    tests = File.read("#{Rails.root}/app/assets/orders.sql")
+    configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]    
+    client = Mysql2::Client.new(:host => "localhost", :username => "#{configs['username']}", :password => "#{configs['password']}", :database => "#{configs['database']}")
+    client.query(tests)
+
+    render :text => "fine"
   end
-
-
 
   def load_tests
-
     tests = File.read("#{Rails.root}/app/assets/tests.sql")
-    tst = tests.split(":")
-    tst = tst[params[:number].to_i]
-    pushTests(tst)
-    
-    render :text => tst
-
-  end
-  def pushTests(data)
-
     configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]    
     client = Mysql2::Client.new(:host => "localhost", :username => "#{configs['username']}", :password => "#{configs['password']}", :database => "#{configs['database']}")
-    client.query(data.to_s)
-
-  end
-  def tests_total
-    tests = File.read("#{Rails.root}/app/assets/tests.sql")
-    tst = tests.split(":")
-  
-    render :text => tst.length
+    client.query(tests)
     
+     render :text => "fine"
   end
-
-
+ 
 
   def load_tests_results
-
-    results = File.read("#{Rails.root}/app/assets/test_results.sql")
-    rst = results.split(":")
-    rst = rst[params[:number].to_i]
-    pushTestsResults(rst)
-    
-    render :text => rst
-
-  end
-  def pushTestsResults(data)
-
+    tests = File.read("#{Rails.root}/app/assets/test_results.sql")
     configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]    
     client = Mysql2::Client.new(:host => "localhost", :username => "#{configs['username']}", :password => "#{configs['password']}", :database => "#{configs['database']}")
-    client.query(data.to_s)
+    client.query(tests)
 
+     render :text => "fine"
   end
-  def test_results_total
-    tests = File.read("#{Rails.root}/app/assets/test_results.sql")
-    tst = tests.split(":")
-   
-    render :text => tst.length
-    
-  end
-
-
 
   def load_trails
-
-    trails = File.read("#{Rails.root}/app/assets/test_trails.sql")
-    trls = trails.split(":")
-    trls = trls[params[:number].to_i]
-    pushTrails(trls)
-    
-    render :text => trls
-
-  end
-  def pushTrails(data)
-
+    tests = File.read("#{Rails.root}/app/assets/test_trails.sql")
     configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]    
     client = Mysql2::Client.new(:host => "localhost", :username => "#{configs['username']}", :password => "#{configs['password']}", :database => "#{configs['database']}")
-    client.query(data.to_s)
+    client.query(tests)
 
+     render :text => "fine"
   end
-  def trails_total
-    trails = File.read("#{Rails.root}/app/assets/test_trails.sql")
-    trls = trails.split(":")
-  
-    render :text => trls.length
-    
+
+  def load_patients
+    tests = File.read("#{Rails.root}/app/assets/patients.sql")
+    configs = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]    
+    client = Mysql2::Client.new(:host => "localhost", :username => "#{configs['username']}", :password => "#{configs['password']}", :database => "#{configs['database']}")
+    client.query(tests)
+
+     render :text => "fine"
   end
+ 
 
 
 end

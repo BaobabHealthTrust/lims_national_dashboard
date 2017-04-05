@@ -1,343 +1,173 @@
 
 
 <body>
+
 <div class="container-fluid text-xs-center" style="border-bottom: 1px solid black;border-top: 2px solid darkred;background: #d3d3d3">
   <h4> Creating Mysql-DB from Couch-DB </h4>
 </div>
-<div class="col-sm-offset-1 col-sm-10 col-sm-offset-1" style="margin-top:2%; padding:5px;">
-	
-	<div class="panel panel-primary"> 
-		
-	   <div class="panel-header row col-sm-offset-1 col-sm-10 col-sm-offset-0" style="padding-bottom: 30px; margin-right: -2px;"> 
-			
+
+<div class="container-fluid row" style="margin-top: 50px;">
+    
+    <div class="panel panel-primary col-sm-offset-1 col-sm-3">
+        <div class="panel-header" style="background-color: lightblue; padding-left: 10px; height: 40px;">Action</div>
+        
+        <div class="panel-body" style="padding:20px;">
             
-		</div>
+            <button type="submit" style="width: 80%;height: 80px;" class="btn btn-primary" onclick="createStructure()">Structure From Couch </button>  <br/>
+            
+            <button id="load" type="submit" class="btn btn-success" onclick="loadData()" style="margin-top: 30px; width: 80%;height: 80px;visibility: hidden;">Load Data</button>
+        </div>
 
-		<div class="panel-body row" style=" padding:4px"> 
-			
-			<div class="col-sm-offset-1 col-sm-4">
-				<div class="panel-header" style="background-color: lightblue; color:white;text-align:center; padding: 5px;">
-					<h5>Couch DB </h5>
-				</div>
-				<div class="panel-body" style="height:450px; border: thin solid lightblue;">
-					<ul class="list-group">
-						<li class="list-group-item">
-							Orders [Total Orders:<%=  @total_orders %>]
-						</li>
-					</ul>
-					
-				</div>
-			</div>
+    </div>
 
-			<div class="col-sm-2" style="margin-top: 45px; margin-right: 2%;">
-				<button type="submit" class="btn btn-primary" onclick="createStructure()">Structure From Couch </button> 
-				<button id="load" type="submit" class="btn btn-success" onclick="loadData()" style="margin-top: 30px;">Load Data From Couch</button> 
+    <div class="panel panel-primary col-sm-8">
+        <div class="panel-header" style="background-color: lightblue; padding-left: 10px; height: 40px;">Status</div>
+        
+        <div class="panel-body" style="padding:20px;">
+            
+          <div class="container-fluid"> 
+                <span>Data Structure Generation Status </span> 
+                <ul id="structure" class="list-group"> </ul>   
+          </div>
 
-			</div>
+          <div id="data_id" class="container-fluid" style="margin-top: 60px;visibility: hidden;"> 
+                <span>Data Loading Status </span> 
+                <ul id="items" class="list-group"> </ul>   
+          </div>
 
-			<div class="col-sm-4">
-				<div class="panel-header" style="background-color: lightblue; color:white;text-align:center; padding: 5px;">
-					<h5>Mysql DB </h5>
-				</div>
-
-				<div class="panel-body" style="height:450px; border: thin solid lightblue;">
-					<ul id="items" class="list-group">
-
-                    </ul>
-				</div>
-
-			</div>
-
-		</div>
-
-	</div>
+            
+        </div>
+    </div>
 
 </div>
+
+
+
 
 
 <script type="text/javascript">
 	count = 0;
-	var data_url = "/orders_total";
-	var url_tests = "/tests_total";
-	var url_test_results = "/test_results_total";
-	var url_trails = "/trails_total";
+	var data_url = "/load_orders";
+	var url_tests = "/load_tests";
+	var url_test_results = "/load_tests_results";
+	var url_trails = "/load_trails";
+    var url_patients = "/load_patients";
+    var tracking_field = "";
     
 
 	function loadData()
-	{
+	{      
+            var list = document.getElementById("items");
+            var item = document.createElement("li");
+            var dv = document.createElement("div");
+            var bar = document.createElement("div");
+            var pa = document.createElement("p");
+
+            item.setAttribute("class","list-group-item");
+
+            dv.style.width ="100%";
+            dv.style.background ="grey";
+            dv.style.height="15px";
+            bar.style.background ="red";
+            bar.style.width ="1";
+            bar.style.height="15px";
+            bar.style.fontSize="smaller";
+            bar.style.padding ="2px 2px 2px 2p";
+            bar.style.color="white";
+
+            dv.appendChild(bar);
+            item.appendChild(dv);
+            list.appendChild(item);
+
 		jQuery.ajax(
                 {  async: false,
                     url: data_url,
                     success: function(length){
-                       
-                        var list = document.getElementById("items");
-                        var item = document.createElement("li");
-                        var dv = document.createElement("div");
-                        var bar = document.createElement("div");
-                        var pa = document.createElement("p");
+                        count = count + 1;
+                        var lbl = document.createElement('li');
+                        lbl.innerHTML = "Loaded data on Orders";
+                        lbl.setAttribute("class","list-group-item");
+                        list.appendChild(lbl);
 
-                        pa.innerHTML ="hey";
-                        item.innerHTML="Data on Orders";
-                        item.setAttribute("class","list-group-item");
-
-                     
-                        dv.style.width ="100%";
-                        dv.style.background ="grey";
-                        dv.style.height="15px";
-                        bar.style.background ="red";
-                        bar.style.width ="1";
-                        bar.style.height="15px";
-                        bar.style.fontSize="smaller";
-                        bar.style.padding ="2px 2px 2px 2p";
-                        bar.style.color="white";
-
-                        dv.appendChild(bar);
-                        item.appendChild(dv);
-                        list.appendChild(item);
-
-                        for (counter=0;counter<length-1;counter++)
-                        { 	var url_orders = "/load_orders?number=" + counter;
-                    		count = count + 1;
-                        	jQuery.ajax(
-                        		{ async : false,
-                        			url :url_orders,
-                        		    success: function(orders)
-                        		    {  
-                                                                        
-                                       if (((count/(length-1))*100)<40){
-                                         bar.style.width = ((count/(length-1))*100)+"%";
-                                         bar.innerHTML = ((count/(length-1))*100)+"%";
-                                         bar.style.background="red";
-                                        }
-                                        else if ((((count/(length-1))*100)>40) && (((count/(length-1))*100)<70)){
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="orange";
-                                        }
-                                        else
-                                        {
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="green"; 
-                                        }
-                                        
-                        		    },
-                        		    error: function(a)
-                        		    {
-
-                        		    }
-                        		}
-                        	)
-                        }                       
+                        bar.style.width = ((count/5)*100)+"%";
+                        bar.innerHTML = ((count/5)*100)+"%";
+                        bar.style.background="green";                                                 
                     },
                     error: function(e){
                         
                     }
                 }
         )
-
-       count =0;
-
         jQuery.ajax(
                 {  async: false,
                     url: url_tests,
                     success: function(length){
-                     	var list = document.getElementById("items");
-                        var item = document.createElement("li");
-                        var dv = document.createElement("div");
-                        var bar = document.createElement("div");
-                        var pa = document.createElement("p");
+                        count = count + 1;
+                        var lbl = document.createElement('li');
+                        lbl.innerHTML = "Loaded data on Order Tests";
+                        lbl.setAttribute("class","list-group-item");
+                        list.appendChild(lbl);
 
-                        pa.innerHTML ="hey";
-                        item.innerHTML="Data on Order Tests";
-                        item.setAttribute("class","list-group-item");
-
-                      
-                        dv.style.width ="100%";
-                        dv.style.background ="grey";
-                        dv.style.height="15px";
-                        bar.style.background ="red";
-                        bar.style.width ="1";
-                        bar.style.height="15px";
-                        bar.style.fontSize="smaller";
-                        bar.style.padding ="2px 2px 2px 2p";
-                        bar.style.color="white";
-
-                        dv.appendChild(bar);
-                        item.appendChild(dv);
-                        list.appendChild(item);
-                        for (counter=0;counter<length-1;counter++)
-                        { 	var url_orders = "/load_tests?number=" + counter;
-                    		count = count + 1;
-                        	jQuery.ajax(
-                        		{ async : false,
-                        			url :url_orders,
-                        		    success: function(tests)
-                        		    {  
-                        		  		if (((count/(length-1))*100)<40){
-                                         bar.style.width = ((count/(length-1))*100)+"%";
-                                         bar.innerHTML = ((count/(length-1))*100)+"%";
-                                         bar.style.background="red";
-                                        }
-                                        else if ((((count/(length-1))*100)>40) && (((count/(length-1))*100)<70)){
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="orange";
-                                        }
-                                        else
-                                        {
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="green"; 
-                                        }
-                        		    },
-                        		    error: function(a)
-                        		    {
-
-                        		    }
-                        		}
-                        	)
-                        }                       
+                        bar.style.width = ((count/5)*100)+"%";
+                        bar.innerHTML = ((count/5)*100)+"%";
+                        bar.style.background="green";                      
                     },
                     error: function(e){
                         
                     }
                 }
         )
-
-        count =0;
-
         jQuery.ajax(
                 {  async: false,
                     url: url_test_results,
                     success: function(length){
-                     	var list = document.getElementById("items");
-                        var item = document.createElement("li");
-                        var dv = document.createElement("div");
-                        var bar = document.createElement("div");
-                        var pa = document.createElement("p");
+                        count = count + 1;                        
+                        var lbl = document.createElement('li');
+                        lbl.innerHTML = "Loaded data on Test Results";
+                        lbl.setAttribute("class","list-group-item");
+                        list.appendChild(lbl);
 
-                        pa.innerHTML ="hey";
-                        item.innerHTML="Data on Test Results";
-                        item.setAttribute("class","list-group-item");
+                        bar.style.width = ((count/5)*100)+"%";
+                        bar.innerHTML = ((count/5)*100)+"%";
+                        bar.style.background="green";                      
+                    },
+                    error: function(e){
+                        
+                    }
+                }
+        )      
+        jQuery.ajax(
+                {  async: false,
+                    url: url_trails,
+                    success: function(length){
+                        count = count + 1;
+                        var lbl = document.createElement('li');
+                        lbl.innerHTML = "Loaded data on Test Trail";
+                        lbl.setAttribute("class","list-group-item");
+                        list.appendChild(lbl);
 
-                       
-                        dv.style.width ="100%";
-                        dv.style.background ="grey";
-                        dv.style.height="15px";
-                        bar.style.background ="red";
-                        bar.style.width ="1";
-                        bar.style.height="15px";
-                        bar.style.fontSize="smaller";
-                        bar.style.padding ="2px 2px 2px 2p";
-                        bar.style.color="white";
-
-                        dv.appendChild(bar);
-                        item.appendChild(dv);
-                        list.appendChild(item);
-                        for (counter=0;counter<length-1;counter++)
-                        { 	var url_orders = "/load_tests_results?number=" + counter;
-                    		count = count + 1;
-                        	jQuery.ajax(
-                        		{ async : false,
-                        			url :url_orders,
-                        		    success: function(tests)
-                        		    {  
-                        		  		if (((count/(length-1))*100)<40){
-                                         bar.style.width = ((count/(length-1))*100)+"%";
-                                         bar.innerHTML = ((count/(length-1))*100)+"%";
-                                         bar.style.background="red";
-                                        }
-                                        else if ((((count/(length-1))*100)>40) && (((count/(length-1))*100)<70)){
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="orange";
-                                        }
-                                        else
-                                        {
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="green"; 
-                                        }
-                        		    },
-                        		    error: function(a)
-                        		    {
-
-                        		    }
-                        		}
-                        	)
-                        }                       
+                        bar.style.width = ((count/5)*100)+"%";
+                        bar.innerHTML = ((count/5)*100)+"%";
+                        bar.style.background="green";                     
                     },
                     error: function(e){
                         
                     }
                 }
         )
-
-        count =0;
         jQuery.ajax(
                 {  async: false,
-                    url: url_trails,
+                    url: url_patients,
                     success: function(length){
-                     	var list = document.getElementById("items");
-                        var item = document.createElement("li");
-                        var dv = document.createElement("div");
-                        var bar = document.createElement("div");
-                        var pa = document.createElement("p");
+                        count = count + 1;
+                        var lbl = document.createElement('li');
+                        lbl.innerHTML = "Loaded data on Patients";
+                        lbl.setAttribute("class","list-group-item");
+                        list.appendChild(lbl);
 
-                        pa.innerHTML ="hey";
-                        item.innerHTML="Data on Test Status";
-                        item.setAttribute("class","list-group-item");
-
-                        dv.style.width ="100%";
-                        dv.style.background ="grey";
-                        dv.style.height="15px";
-                        bar.style.background ="red";
-                        bar.style.width ="1";
-                        bar.style.height="15px";
-                        bar.style.fontSize="smaller";
-                        bar.style.padding ="2px 2px 2px 2p";
-                        bar.style.color="white";
-
-                        dv.appendChild(bar);
-                        item.appendChild(dv);
-                        list.appendChild(item);
-
-                        for (counter=0;counter<length-1;counter++)
-                        { 	var url_orders = "/load_trails?number=" + counter;
-                    		count = count + 1;
-                        	jQuery.ajax(
-                        		{ async : false,
-                        			url :url_orders,
-                        		    success: function(tests)
-                        		    {  
-                        		  		
-                                        if (((count/(length-1))*100)<40){
-                                         bar.style.width = ((count/(length-1))*100)+"%";
-                                         bar.innerHTML = ((count/(length-1))*100)+"%";
-                                         bar.style.background="red";
-                                        }
-                                        else if ((((count/(length-1))*100)>40) && (((count/(length-1))*100)<70)){
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="orange";
-                                        }
-                                        else
-                                        {
-                                          bar.style.width = ((count/(length-1))*100)+"%";
-                                          bar.innerHTML = ((count/(length-1))*100)+"%";
-                                          bar.style.background="green"; 
-                                        }
-                                        
-
-                        		    },
-                        		    error: function(a)
-                        		    {
-
-                        		    }
-                        		}
-                        	)
-                        }                       
+                        bar.style.width = ((count/5)*100)+"%";
+                        bar.innerHTML = ((count/5)*100)+"%";
+                        bar.style.background="green";                     
                     },
                     error: function(e){
                         
@@ -351,22 +181,63 @@
 
 	var structure_url = "/getStructure";
 	function createStructure()
-	{
+	{   var btn = document.getElementById('load');
+        var pan = document.getElementById('data_id');
+
+        pan.style.visibility = "hidden";
+        btn.style.visibility = "hidden";
+
+            var list = document.getElementById("structure");
+            var item = document.createElement("li");
+            var dv = document.createElement("div");
+            var bar = document.createElement("div");
+            var pa = document.createElement("p");
+
+            item.setAttribute("class","list-group-item");
+
+            dv.style.width ="100%";
+            dv.style.background ="grey";
+            dv.style.height="15px";
+            bar.style.background ="red";
+            bar.style.width ="1";
+            bar.style.height="15px";
+            bar.style.fontSize="smaller";
+            bar.style.padding ="2px 2px 2px 2p";
+            bar.style.color="white";
+
+            dv.appendChild(bar);
+            item.appendChild(dv);
+            list.appendChild(item);
+            bar.style.width = (20)+"%";
+
 		jQuery.ajax(
                 {  async: false,
                     url: structure_url,
-                    
+                    success : function(rst)
+                    { 
+                        var lbl = document.createElement('li');
+                        lbl.innerHTML = "Database and Tables Created";
+                        lbl.setAttribute("class","list-group-item");
+                        list.appendChild(lbl);
+
+                        bar.style.width = (70)+"%";
+                        bar.style.background="yellow";   
+
+                        btn.style.visibility = "visible";
+                        pan.style.visibility = "visible";
                     },
                     error: function(e){
                         
                     }
                 }
         )
+         bar.style.width = (100)+"%";
+         bar.style.background="green"; 
 	}
 
 	
 
-</script>
+ </script>
 
 </body>
 

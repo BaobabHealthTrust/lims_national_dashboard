@@ -73,6 +73,9 @@ Rails.application.routes.draw do
   get '/trails_total' => 'test#trails_total'
   get '/load_trails' => 'test#load_trails'
 
+  get '/demo' => 'test#demo'
+  get '/data' => 'test#demoStructure'
+  get '/load_patients' => 'test#load_patients'
   
 
 end
