@@ -127,14 +127,13 @@ class Order < CouchRest::Model::Base
                 }"
 
 
-                  view :trying, 
+    view :validation_errors,
          :map => "function(doc) {
-                    if (doc['patient']['national_patient_id'] == 'h')
+                    if (doc['doc_type'] && doc['doc_type'] == 'error')
                      {  
-                          emit({name: doc['patient']['first_name']});
+                          emit([doc['_id']]);
                      }
-
-                     }"
+               }"
   end
 
 end

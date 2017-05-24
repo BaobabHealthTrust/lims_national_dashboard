@@ -24,7 +24,11 @@
                       <th style="width: 30%;">Last Seen</th>
                     </tr>
 
-                    <% @sites_enabled.each do |site|%>
+                    <%  sites = []
+                       @sites_enabled.each do |site|
+                         next if sites.include?(site.name)
+                        sites << site.name
+                    %>
                         <tr class="row">
                           <td> <%= site.name %></td>
                           <td style="color: red;"><%= site['last_seen']%></td>

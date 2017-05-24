@@ -1,0 +1,67 @@
+
+<script type="text/javascript">
+</script>
+
+<style type="text/css">
+
+    .finish {
+        margin-right: 40%;
+        margin-left: 5%;
+    }
+    #mainPage{
+        width: 100%;
+        border-top: 2px solid darkred;
+        padding-top: 20px;
+    }
+        select{
+            width: 200px;
+            padding: 5px;
+            margin-left: 10px;
+        }
+
+</style>
+<form id="form1">
+    <div id="mainPage" class="page" >
+
+      <div class=".select pull-xs-right" style="margin-right: 70%; text-align: center;">
+        <h5>Select Quarter:</h5>
+      </div>
+
+      <div class="btn btn-success pull-xs-right finish" onclick="load()">Finish</div>
+
+      <select id="select" class="pull-xs-right">
+        <option value="">----</option>
+
+        <% ['Q1', 'Q2', 'Q3', 'Q4'].each do |q|%>
+            <option value="<%= q%>"><%= q%></option>
+        <%end %>
+      </select>
+
+      <select id="select2" class="pull-xs-right">
+        <option value="">----</option>
+
+        <% (2016 .. Date.today.year).each do |year|%>
+            <option value="<%= year%>"><%= year%></option>
+        <%end %>
+      </select>
+
+    </div>
+  </form>
+
+ <script>
+    function load(){
+        var value = document.getElementById("select").value;
+        if (value == ""){
+            alert("Please select a quarter to proceed");
+        }else{
+            var value2 = document.getElementById("select2").value;
+            if (value2 == ""){
+                alert("Please select a year to proceed");
+            }else {
+
+               
+                window.location.href = "/<%= params[:type]%>?year=" + value2 + "&quarter=" + value;
+            }
+        }
+    }
+ </script>
