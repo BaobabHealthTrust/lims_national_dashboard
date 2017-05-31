@@ -76,6 +76,7 @@ Rails.application.routes.draw do
   get '/demo' => 'test#demo'
   get '/data' => 'test#demoStructure'
   get '/load_patients' => 'test#load_patients'
-  
+
+  get '/view_validations' => 'report#view_validations'
 
 end

@@ -14,7 +14,7 @@ end
 gem 'passenger', '4.0.48'
 gem 'couchrest_model'
 gem 'rest-client'
-
+gem "pikaday-gem"
 gem 'mysql2'
 gem 'net-ping'
 

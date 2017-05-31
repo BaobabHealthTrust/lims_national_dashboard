@@ -8,6 +8,8 @@ development: &development
   password: password
   bidirectional_sync: false
   sync_interval_in_minutes: 15  
+  validation_rules_dir: /var/www/lims_national_repository/public/validations/
+
 test:
   <<: *development
   suffix: test

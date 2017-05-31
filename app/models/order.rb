@@ -1,7 +1,8 @@
 require 'couchrest_model'
 
 class Order < CouchRest::Model::Base
-	
+
+  site = YAML.load_file("#{Rails.root}/config/application.yml")['site_name']
   def tracking_number
     self['_id']
   end
@@ -133,6 +134,38 @@ class Order < CouchRest::Model::Base
                      {  
                           emit([doc['_id']]);
                      }
+               }"
+
+    view :by_error_category_and_datetime,
+         :map => "function(doc) {
+                    if (doc['doc_type'] && doc['doc_type'] == 'error')
+                     {
+                          emit([doc['category'] + '_' +  doc['datetime']]);
+                     }
+               }"
+
+    view :by_error_status_and_datetime,
+         :map => "function(doc) {
+                    if (doc['doc_type'] && doc['doc_type'] == 'error')
+                       {
+                            emit([doc['status'] + '_' +  doc['datetime']]);
+                       }
+               }"
+
+    view :by_error_category_and_datetime_on_my_site,
+         :map => "function(doc) {
+                    if (doc['doc_type'] && doc['doc_type'] == 'error' && doc['sending_facility'] == '#{site}')
+                     {
+                          emit([doc['sending_facility'] + '_' + doc['category'] + '_' +  doc['category'] + '_' +  doc['datetime']]);
+                     }
+               }"
+
+    view :by_error_status_and_datetime_on_my_site,
+         :map => "function(doc) {
+                    if (doc['doc_type'] && doc['doc_type'] == 'error' && doc['sending_facility'] == '#{site}')
+                       {
+                            emit([doc['sending_facility'] + '_' + doc['status'] + '_' +  doc['datetime']]);
+                       }
                }"
   end
 

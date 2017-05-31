@@ -13,55 +13,83 @@
         border-top: 2px solid darkred;
         padding-top: 20px;
     }
-        select{
-            width: 200px;
-            padding: 5px;
-            margin-left: 10px;
-        }
 
+    #params{
+        margin: 20px;
+        padding: 15px;
+    }
+    .controls{
+        border: 1px solid ghostwhite;
+        width: 30%;
+        margin: auto;
+        margin-bottom: 20px;
+    }
+    .controls input{
+        margin: 10px;
+        margin: 10px;
+    }
 </style>
 <form id="form1">
     <div id="mainPage" class="page" >
 
-      <div class=".select pull-xs-right" style="margin-right: 70%; text-align: center;">
-        <h5>Select Quarter:</h5>
-      </div>
+      <div id="params" style="text-align: center;">
+        <label>View all:</label> <input type='checkbox' id="all" name="all" onchange="syncButtons()"/>
+        <div class="controls">
+            <label>Start date:</label> <input type="text" id="start-date" name="start_date" /><br />
+            <label>End date:</label> <input type="text" id="end-date" name="end_date" />
+        </div>
+        <div class="btn btn-success pull-xs-right finish" onclick="load()">Finish</div>
 
-      <div class="btn btn-success pull-xs-right finish" onclick="load()">Finish</div>
-
-      <select id="select" class="pull-xs-right">
-        <option value="">----</option>
-
-        <% ['Q1', 'Q2', 'Q3', 'Q4'].each do |q|%>
-            <option value="<%= q%>"><%= q%></option>
-        <%end %>
-      </select>
-
-      <select id="select2" class="pull-xs-right">
-        <option value="">----</option>
-
-        <% (2016 .. Date.today.year).each do |year|%>
-            <option value="<%= year%>"><%= year%></option>
-        <%end %>
-      </select>
+    </div>
 
     </div>
   </form>
 
  <script>
-    function load(){
-        var value = document.getElementById("select").value;
-        if (value == ""){
-            alert("Please select a quarter to proceed");
-        }else{
-            var value2 = document.getElementById("select2").value;
-            if (value2 == ""){
-                alert("Please select a year to proceed");
-            }else {
 
+   function __$(id){
+       return document.getElementById(id);
+   }
+
+    function syncButtons(){
+
+        if( $('#all').prop("checked") == true ){
+            jQuery('.controls input').val('');
+            jQuery('.controls input').prop('disabled', true);
+        }else{
+            jQuery('.controls input').prop('disabled', false);
+        }
+    }
+
+    function load(){
+        var value = document.getElementById("all").value;
+        if ($('#all').prop("checked") == true){
+            window.location.href = "/view_validations?all=true";
+        }else{
+            var valueA = __$("start-date").value;
+            var valueB = __$("end-date").value;
+
+            if (valueA == "" || valueB == ""){
+                alert("Please specify valid date limit");
+            }else {
                
-                window.location.href = "/<%= params[:type]%>?year=" + value2 + "&quarter=" + value;
+                window.location.href = "/view_validations?all=false&start_date=" + valueA + "&end_date=" + valueB;
             }
         }
     }
+
+   var pickerA = new Pikaday({
+       field: __$('start-date'),
+       format: 'DD/MM/YYYY',
+       onSelect: function() {
+       }
+   });
+
+   var pickerB = new Pikaday({
+       field: __$('end-date'),
+       format: 'DD/MM/YYYY',
+       onSelect: function() {
+       }
+   });
+
  </script>
