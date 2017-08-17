@@ -8,7 +8,12 @@ class ReportController < ApplicationController
 
 
   def reports
-
+      @error_count = 0
+      if current_user.user_role == "Administrator"
+        @error_count = Order.by_error_category_and_datetime.count
+      else
+        @error_count = Order.by_error_category_and_datetime_on_my_site.count
+      end
   end
 
   def report_parameters
@@ -19,11 +24,19 @@ class ReportController < ApplicationController
   end
 
   def view_validations
-    API::admin_stats
-    if current_user.user_role == "Administrator"
-      @orders = Order.validation_errors.each
+
+    if params[:all] == "true"
+      if current_user.user_role == "Administrator"
+        @stats = API.admin_stats
+      else
+        @stats = API.stats
+      end
     else
-      @orders = Order.by_error_category_and_datetime_on_my_site.each
+      if current_user.user_role == "Administrator"
+        @stats = API.admin_stats(params[:start_date].to_time, "#{params[:end_date].to_date} 23:59:59".to_time)
+      else
+        @stats = API.stats(params[:start_date].to_time, "#{params[:end_date].to_date} 23:59:59".to_time)
+      end
     end
   end
   

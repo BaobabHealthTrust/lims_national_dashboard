@@ -79,4 +79,6 @@ Rails.application.routes.draw do
 
   get '/view_validations' => 'report#view_validations'
 
+  get '/validation_errors_list' => 'api#validation_errors_list'
+  post '/validation_errors_list' => 'api#validation_errors_list'
 end

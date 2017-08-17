@@ -40,8 +40,8 @@
 
         <div class="card card-block text-xs-center col-xs-2"
              onmousedown="window.location = '/report_parameters?type=validations'">
-            <h5 class="card-title">Validation Rules</h5>
-            <p class="card-text">View failed validations (<span style="color: red; font-size: 1em;font-weight: bold;">0</span>)</p>
+            <h5 class="card-title">Data Quality Errors</h5>
+            <p class="card-text">View failed validations (<span style="color: red; font-size: 1em;font-weight: bold;"><%= @error_count%></span>)</p>
         </div>
 
         <div class="card card-block text-xs-center col-xs-2">

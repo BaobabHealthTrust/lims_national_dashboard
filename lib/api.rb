@@ -13,7 +13,7 @@ module API
       start_key = "#{rule}_#{start_date.strftime("%Y%m%d%H%M%S")}"
       end_key   = "#{rule}_#{end_date.strftime("%Y%m%d%H%M%S")}"
 
-      errors = Order.by_error_category_and_datetime.startkey([start_key]).endkey([end_key])
+      errors = Order.by_error_category_and_datetime_my_site.startkey([start_key]).endkey([end_key])
       errors.each do |error|
         result[rule][error['status']] =  0 if result[rule][error['status']].blank?
         result[rule][error['status']] += 1
@@ -37,7 +37,7 @@ module API
       start_key = "#{rule}_#{start_date.strftime("%Y%m%d%H%M%S")}"
       end_key   = "#{rule}_#{end_date.strftime("%Y%m%d%H%M%S")}"
 
-      errors = Order.by_error_category_and_datetime.startkey([start_key]).endkey([end_key])
+      errors = Order.by_error_category_and_datetime_my_site.startkey([start_key]).endkey([end_key])
       errors.each do |error|
         match = true
         options.each do | k , v |

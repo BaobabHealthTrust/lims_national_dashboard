@@ -6,6 +6,7 @@ class ApiController < ApplicationController
 
   def vl_result_by_npid
 
+		API.vl_result_by_npid
     results = []
     last_order = {}
 
@@ -61,5 +62,45 @@ class ApiController < ApplicationController
     }
 
     render :text => orders.sort_by{|o| o['date_time']}.reverse.to_json
+  end
+
+  def validation_errors_list
+    options = params.reject{|x, v| x.match(/controller|action/)}
+    rule = options['category']
+    status = options['status']
+
+    if params[:all] == 'true'
+      start_date="1917-05-25 08:57:06 UTC".to_time
+      end_date=Time.now
+    else
+      start_date = params[:start_date].to_time
+      end_date = params[:end_date].to_time
+    end
+
+    start_key = "#{rule}_#{status}_#{start_date.strftime("%Y%m%d%H%M%S")}"
+    end_key   = "#{rule}_#{status}_#{end_date.strftime("%Y%m%d%H%M%S")}"
+
+    if current_user.user_role == "Administrator"
+      data = Order.by_error_category_status_and_datetime.startkey([start_key]).endkey([end_key]).each
+    else
+      data = Order.by_error_category_status_and_datetime_on_my_site.startkey([start_key]).endkey([end_key]).each
+    end
+
+    results = []
+    data.each do |d|
+      order = Order.find(d['tracking_number'])
+
+      results << {
+          'date_registered' => order['date_time'].to_date.strftime("%d/%b/%Y"),
+          'patient_name' => ((order['patient']['first_name'] + ' ' + order['patient']['middle_name'] + order['patient']['last_name']).gsub(/\s+/, ' ') rescue nil),
+          'npid' => order['patient']['national_patient_id'],
+          'sex' => order['patient']['gender'],
+          'dob' => (order['patient']['date_of_birth'].to_date.strftime("%d/%b/%Y") rescue nil),
+          'sender' => order['sending_facility'],
+          'receiver' => order['receiving_facility']
+      }
+    end
+
+    render :text => results.to_json
   end
 end

@@ -1,5 +1,43 @@
  <style>
+    .validation_stats{
+        background: white;
+    }
 
+.container-fluid, body,
+.modal .modal-dialog, .modal .modal-content,
+.modal .modal-body,.modal .modal-header{
+    font-size: 14px;
+}
+ .table{
+     margin-top: 20px;
+ }
+ .table td{
+     padding: 7px;
+     color: darkslategrey;
+ }
+
+ .table th{
+     background: ghostwhite;
+     padding: 8px;
+ }
+ #validations_errors_list td{
+        padding: 3px;
+ }
+
+.modal .modal-dialog, .modal .modal-content, .modal .modal-body,.modal .modal-header{
+     margin: auto;
+     padding-top: 2px;
+     padding-bottom: 2px;
+     margin-top: 2px;
+     margin-bottom: 2px;
+     width: 85%;
+ }
+.close{
+    padding-top: 2px; margin-top: 2px;
+}
+ .header td{
+     background: ghostwhite;
+ }
 </style>
 
 <div class="container-fluid text-xs-center"
@@ -12,8 +50,174 @@
   <h5>View data validations </h5>
 </div>
 
- <script>
+ <div class="container-fluid col-xs-8" >
+   <table class="table table-bordered table-condensed validation_stats">
+     <thead>
+     <tr>
+       <th>#</th>
+       <th>Validation Rule</th>
+       <th>New</th>
+       <th>Resolved</th>
+     </tr>
+     <%
+        i = 1
+        @stats.each do |stat, hash|%>
+         <tr class="table-row" scope="row">
+           <td class="table-cell">
+             <%= i%>
+           </td>
+           <td class="table-cell">
+             <%= stat%>
+           </td>
+           <td class="table-cell" data-target="#validations_errors_list" data-toggle="modal"
+               style="cursor: pointer; color: darkred;padding-left: 30px;" onclick="loadValidations(this)"
+                data="<%= {'category' => stat, 'status' => 'New', 'start_date' => params[:start_date], 'end_date' => params[:end_date], 'all' => params[:all] }.to_json%>">
+             <%= (hash['New'] || 0).to_s rescue 0%>
+           </td>
+           <td class="table-cell" data-target="#validations_errors_list" data-toggle="modal"
+               style="cursor: pointer; color: darkgreen;padding-left: 30px;" onclick="loadValidations(this)"
+               data="<%= {'category' => stat, 'status' => 'Resolved', 'start_date' => params[:start_date], 'end_date' => params[:end_date], 'all' => params[:all] }.to_json%>">
+             <%= (hash['Resolved'] || 0).to_s rescue 0%>
+           </td>
 
+           <% i += 1%>
+         </tr>
+     <% end %>
+     </table>
+</div>
+
+ <div class="container-fluid col-xs-4" >
+   <table class="table table-bordered validation_stats">
+     <thead>
+     <tr>
+         <th>Rule definitions</th>
+     </tr>
+     <%@stats.each do |stat, hash|%>
+         <tr class="table-row" scope="row">
+
+           <td class="table-cell" style="width: 80%">
+             <%= stat%>
+           </td>
+
+           <td onclick="loadRule(this)"
+               style='padding: 2px; margin: 0px;'><span class="btn btn-sm btn-success" data-target="#view_rule" data-toggle="modal">View</span>
+           </td>
+           <td onclick="loadRule(this)"
+               style='padding: 2px; margin: 0px;'><span class="btn btn-sm btn-warning" data-target=".bd-example-modal-lg" data-toggle="modal">Edit</span>
+           </td>
+           <td onclick="loadRule(this)"
+               style='padding: 2px; margin: 0px;'><span class="btn btn-sm btn-danger" data-target=".bd-example-modal-lg" data-toggle="modal">Del</span>
+           </td>
+
+         </tr>
+
+     <% end %>
+
+     <tr class="table-row" scope="row">
+
+       <td onclick="loadRule(this)" colspan="4"
+           style='padding: 2px; margin: 0px;'><span class="btn btn-sm btn-primary pull-xs-right" data-target=".bd-example-modal-lg" data-toggle="modal">Upload New Rule</span>
+       </td>
+
+     </tr>
+     </table>
+ </div>
+
+
+
+ <div class="modal fade" id="validations_errors_list">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="category_title" /> Missing></h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body">
+         <table class="table table-bordered table-condensed" id="validation_stats">
+           <thead>
+                <tr class="header">
+                    <td id="date_registered" >Date Registered</td>
+                    <td id="patient_name">Patient Name</td>
+                    <td id="npid">NPID</td>
+                    <td id="sex">Sex</td>
+                    <td id="dob">DOB</td>
+                    <td id="sender">Sending Facility</td>
+                    <td id="receiver">Receiving Facility</td>
+                </tr>
+           </thead>
+           <tbody id="tbd">
+
+           </tbody>
+         </table>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <div class="modal fade" id="view_rule">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="rule_title"> Missing></h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body">
+
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <script>
+    function __$(id){
+       return document.getElementById(id);
+    }
+
+    function loadRule(node){
+        $('#view_rule').on('shown.bs.modal', function () {
+        })
+    }
+
+    function loadValidations(node){
+        $("#category_title, #validation_stats tbody").html('');
+        var data = JSON.parse(node.getAttribute('data'));
+        __$('category_title').innerHTML = data['status'] + ' Cases With ' + (data['category']);
+        $('#validations_errors_list').on('shown.bs.modal', function () {
+            $("validation_error_list").html('');
+
+            $.post('/validation_errors_list', data,
+                function(data, status){
+                    var data = JSON.parse(data);
+                    __$('tbd').innerHTML = '';
+                    var fields = ['date_registered', 'patient_name', 'npid', 'sex', 'dob', 'sender', 'receiver']
+
+                    for(var a = 0; a < data.length; a ++) {
+
+                        var tr = document.createElement('tr');
+                        __$('tbd').appendChild(tr);
+
+                        for (var i = 0; i < fields.length; i++) {
+                            var td = document.createElement('td');
+                            td.style.fontSize = '13px';
+                            td.innerHTML = data[a][fields[i]];
+                            td.className += fields[i];
+                            tr.appendChild(td);
+                        }
+                    }
+                }
+            );
+        });
+    }
 </script>
 
 

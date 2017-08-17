@@ -167,6 +167,22 @@ class Order < CouchRest::Model::Base
                             emit([doc['sending_facility'] + '_' + doc['status'] + '_' +  doc['datetime']]);
                        }
                }"
+
+    view :by_error_category_status_and_datetime,
+         :map => "function(doc) {
+                    if (doc['doc_type'] && doc['doc_type'] == 'error')
+                     {
+                          emit([doc['category'] + '_' + doc['status'] + '_'  +  doc['datetime']]);
+                     }
+               }"
+
+    view :by_error_category_status_and_datetime_on_my_site,
+         :map => "function(doc) {
+                    if (doc['doc_type'] && doc['doc_type'] == 'error' && doc['sending_facility'] == '#{site}')
+                       {
+                           emit([doc['category'] + '_' + doc['status'] + '_'  +  doc['datetime']]);
+                       }
+               }"
   end
 
 end
