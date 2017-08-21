@@ -116,7 +116,8 @@ module API
     result
   end
 
-  def vl_result_by_npid
+
+  def self.vl_result_by_npid(params)
 
     results = []
     last_order = {}
@@ -155,14 +156,28 @@ module API
     }
 
     if ((params[:raw].to_s == "true" ) rescue false)
-      render :text => last_order.to_json
+      return last_order.to_json
     else
-      render :text => results.to_json
+      return results.to_json
     end
 
   end
 
-  def validation_errors_list
+  def self.patient_lab_trail(params)
+
+    startkey = "#{params[:npid].strip}_10000000000000"
+    endkey = "#{params[:npid].strip}_#{Time.now.strftime('%Y%m%d%H%M%S')}"
+
+    orders = []
+    Order.by_national_id_and_datetime.startkey([startkey]).endkey([endkey]).each {|order|
+      orders << order
+    }
+
+    return orders
+
+  end
+
+  def self.validation_errors_list
 
     options = params.reject{|x, v| x.match(/controller|action/)}
     rule = options['category']

@@ -5,21 +5,13 @@ class ApiController < ApplicationController
   end
 
   def vl_result_by_npid
-		API.vl_result_by_npid
+		@vl_results = API.vl_result_by_npid(params)
+    render :text => @vl_results
   end
 
   def patient_lab_trail
-
-
-    startkey = "#{params[:npid].strip}_10000000000000"
-    endkey = "#{params[:npid].strip}_#{Time.now.strftime('%Y%m%d%H%M%S')}"
-
-    orders = []
-    Order.by_national_id_and_datetime.startkey([startkey]).endkey([endkey]).each {|order|
-      orders << order
-    }
-
-    render :text => orders.sort_by{|o| o['date_time']}.reverse.to_json
+    @orders = API.patient_lab_trail(params)
+    render :text => @orders.sort_by{|o| o['date_time']}.reverse.to_json
   end
 
   def validation_errors_list
