@@ -57,6 +57,7 @@ Rails.application.routes.draw do
   get "api/viral_load_stats"
   get "api/vl_result_by_npid"
   get "api/patient_lab_trail"
+   get "api/pull_vl_by_id"
 
   get '/build_mysql_database' => 'test#build_mysql_database'
   post '/build_mysql_database' => 'test#build_mysql_database'
