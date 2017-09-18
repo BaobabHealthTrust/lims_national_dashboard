@@ -44,6 +44,7 @@ class ApiController < ApplicationController
     if ((params[:raw].to_s == "true" ) rescue false)
       render :text => last_order.to_json
     else
+			results = results.sort_by{|r| r[0]}
       render :text => results.to_json
     end
 
