@@ -28,7 +28,7 @@ class ApiController < ApplicationController
       order_status = result_a[timestamp]['test_status']
       rst = result_a[timestamp]["results"]
 
-      if order['status'].match(/rejected/i)
+      if (order['sample_status'] || order['status']).match(/rejected/i)
         rst = "Rejected"
         order_status = "Rejected"
       end
