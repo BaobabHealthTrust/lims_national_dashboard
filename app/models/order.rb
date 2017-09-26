@@ -2,6 +2,10 @@ require 'couchrest_model'
 
 class Order < CouchRest::Model::Base
 	
+  property :_id, String
+  property :test_types, {}
+  property :results, {}
+
   def tracking_number
     self['_id']
   end
@@ -10,7 +14,7 @@ class Order < CouchRest::Model::Base
     self['patient']['national_patient_id']
   end
 
-  def results
+  def result
     r = {}
     result_names = self['results'].keys
     result_names.each do |rn |
@@ -31,8 +35,12 @@ class Order < CouchRest::Model::Base
     rst || self['status']
   end
 
+
   design do
-    view :generic,
+
+     view :by__id
+
+     view :generic,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
                       emit([doc['date_time']]);
@@ -127,11 +135,13 @@ class Order < CouchRest::Model::Base
                 }"
 
 
-                  view :trying, 
+    view :trying, 
          :map => "function(doc) {
-                    if (doc['patient']['national_patient_id'] == 'h')
+                    if (doc.results)
                      {  
-                          emit({name: doc['patient']['first_name']});
+                           
+                                  emit(doc._id);
+                         
                      }
 
                      }"

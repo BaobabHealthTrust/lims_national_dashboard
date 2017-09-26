@@ -76,6 +76,18 @@ Rails.application.routes.draw do
   get '/demo' => 'test#demo'
   get '/data' => 'test#demoStructure'
   get '/load_patients' => 'test#load_patients'
-  
+
+  get '/hit' => 'user#hit'
+  post '/hit' => 'user#hit'
+  post '/upd' => 'user#upd'
+
+  post '/post_lab_catalog' => 'api#share_lab_catalog'
+  post '/draw_un_drawn_sample' => 'api#drawn_un_drawn_sample'
+  post '/add_test' => 'api#add_test_to_order'
+
+
+  #apis 
+  post '/lab_catalog' => 'api#retrieve_lab_catalog' 
+  post '/push_lab_catalog' => 'api#share_lab_catalog'
 
 end

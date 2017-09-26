@@ -56,4 +56,5 @@ class UserController < ApplicationController
     results = User.update_user(params[:user_name_old],params[:username],params[:password],params[:user_role])
     render :text => results.to_json
   end
+
 end

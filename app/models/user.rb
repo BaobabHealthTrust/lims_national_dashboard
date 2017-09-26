@@ -88,4 +88,6 @@ class User < CouchRest::Model::Base
       return ["Could not update details for user #{username}", nil]
     end
   end
+
+
 end

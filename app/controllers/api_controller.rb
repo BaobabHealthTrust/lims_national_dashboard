@@ -62,4 +62,55 @@ class ApiController < ApplicationController
 
     render :text => orders.sort_by{|o| o['date_time']}.reverse.to_json
   end
+
+
+  def share_lab_catalog
+      Lab.push_lab_cat_log(params)
+
+      render :text => "added".to_json
+  end
+
+  def drawn_un_drawn_sample
+
+  end
+
+  def add_test_to_order    
+    tests = params[:test]
+    tests = tests.delete_if(&:empty?)      
+    tracking_number = params[:_id]
+    got_results = {}
+    got_tests = {}
+    order = Order.find(tracking_number)
+    got_results = order.results
+    got_tests =  order.test_types
+    got_tests += tests
+
+    tests.each do |r|    
+       data  = {         
+             "#{Time.now}" => {
+                 "test_status"=> "Drawn",
+                 "remarks" => "",
+                 "datetime_started" => "20170925151103",
+                 "datetime_completed" => "",
+                 "results" => {
+                 }
+             }           
+        }           
+
+        got_results[r] = data
+    end
+    order.test_types= got_tests
+    order.results= got_results
+    order.save()
+    render :json => "is done".to_json
+  end
+
+  def retrieve_lab_catalog
+    lab_name =  params[:lab]    
+    samples =  Lab.find(lab_name)
+    render :json => samples
+  end
+
+
+
 end

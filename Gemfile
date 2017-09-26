@@ -15,6 +15,7 @@ gem 'passenger', '4.0.48'
 gem 'couchrest_model'
 gem 'rest-client'
 
+gem 'nokogiri', '1.6.5'
 gem 'mysql2'
 gem 'net-ping'
 
