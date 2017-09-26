@@ -1,0 +1,95 @@
+
+<script type="text/javascript">
+</script>
+
+<style type="text/css">
+
+    .finish {
+        margin-right: 40%;
+        margin-left: 5%;
+    }
+    #mainPage{
+        width: 100%;
+        border-top: 2px solid darkred;
+        padding-top: 20px;
+    }
+
+    #params{
+        margin: 20px;
+        padding: 15px;
+    }
+    .controls{
+        border: 1px solid ghostwhite;
+        width: 30%;
+        margin: auto;
+        margin-bottom: 20px;
+    }
+    .controls input{
+        margin: 10px;
+        margin: 10px;
+    }
+</style>
+<form id="form1">
+    <div id="mainPage" class="page" >
+
+      <div id="params" style="text-align: center;">
+        <label>View all:</label> <input type='checkbox' id="all" name="all" onchange="syncButtons()"/>
+        <div class="controls">
+            <label>Start date:</label> <input type="text" id="start-date" name="start_date" /><br />
+            <label>End date:</label> <input type="text" id="end-date" name="end_date" />
+        </div>
+        <div class="btn btn-success pull-xs-right finish" onclick="load()">Finish</div>
+
+    </div>
+
+    </div>
+  </form>
+
+ <script>
+
+   function __$(id){
+       return document.getElementById(id);
+   }
+
+    function syncButtons(){
+
+        if( $('#all').prop("checked") == true ){
+            jQuery('.controls input').val('');
+            jQuery('.controls input').prop('disabled', true);
+        }else{
+            jQuery('.controls input').prop('disabled', false);
+        }
+    }
+
+    function load(){
+        var value = document.getElementById("all").value;
+        if ($('#all').prop("checked") == true){
+            window.location.href = "/view_validations?all=true";
+        }else{
+            var valueA = __$("start-date").value;
+            var valueB = __$("end-date").value;
+
+            if (valueA == "" || valueB == ""){
+                alert("Please specify valid date limit");
+            }else {
+               
+                window.location.href = "/view_validations?all=false&start_date=" + valueA + "&end_date=" + valueB;
+            }
+        }
+    }
+
+   var pickerA = new Pikaday({
+       field: __$('start-date'),
+       format: 'DD/MM/YYYY',
+       onSelect: function() {
+       }
+   });
+
+   var pickerB = new Pikaday({
+       field: __$('end-date'),
+       format: 'DD/MM/YYYY',
+       onSelect: function() {
+       }
+   });
+
+ </script>

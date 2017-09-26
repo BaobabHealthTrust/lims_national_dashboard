@@ -17,3 +17,5 @@ public/api/*.json
 *.lock
 *~
 *.yml
+passenger*
+.log

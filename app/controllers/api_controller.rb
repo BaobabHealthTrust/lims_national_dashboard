@@ -5,7 +5,6 @@ class ApiController < ApplicationController
   end
 
   def vl_result_by_npid
-
     results = []
     last_order = {}
 
@@ -47,11 +46,10 @@ class ApiController < ApplicationController
     else
       render :text => results.to_json
     end
+
   end
 
   def patient_lab_trail
-
-
     startkey = "#{params[:npid].strip}_10000000000000"
     endkey = "#{params[:npid].strip}_#{Time.now.strftime('%Y%m%d%H%M%S')}"
 
@@ -62,6 +60,7 @@ class ApiController < ApplicationController
 
     render :text => orders.sort_by{|o| o['date_time']}.reverse.to_json
   end
+
 
 
   def share_lab_catalog
@@ -111,6 +110,16 @@ class ApiController < ApplicationController
     render :json => samples
   end
 
+
+
+  def validation_errors_list
+    API.validation_errors_list
+  end
+
+  def pull_vl_by_id
+    results = Order.find(params['id']) rescue []
+    render :text => results.to_json
+  end
 
 
 end

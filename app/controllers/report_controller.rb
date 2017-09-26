@@ -1,4 +1,4 @@
-
+require 'api'
 class ReportController < ApplicationController
    
 
@@ -7,19 +7,40 @@ class ReportController < ApplicationController
   @result_index  = 0
 
 
-
-
   def reports
-
+      @error_count = 0
+      if current_user.user_role == "Administrator"
+        @error_count = Order.by_error_category_and_datetime.count
+      else
+        @error_count = Order.by_error_category_and_datetime_on_my_site.count
+      end
   end
 
   def report_parameters
 
+    if params[:type] == 'validations'
+      render :template => '/report/validation_parameters'
+    end
   end
 
+  def view_validations
+
+    if params[:all] == "true"
+      if current_user.user_role == "Administrator"
+        @stats = API.admin_stats
+      else
+        @stats = API.stats
+      end
+    else
+      if current_user.user_role == "Administrator"
+        @stats = API.admin_stats(params[:start_date].to_time, "#{params[:end_date].to_date} 23:59:59".to_time)
+      else
+        @stats = API.stats(params[:start_date].to_time, "#{params[:end_date].to_date} 23:59:59".to_time)
+      end
+    end
+  end
   
   def general_report_data
-     
 
     #[display_name, [test_types], [result_types], [value, [value_modifiers]], min_age, max_age, other, count]
     @csv_quarter =  params[:quarter]

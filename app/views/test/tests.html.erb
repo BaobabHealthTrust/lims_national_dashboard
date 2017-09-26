@@ -141,7 +141,6 @@
           <th>District</th>
           <th>Sending Facility</th>
           <th>Target Lab</th>
-          <th>Patient Name</th>
           <th>Sample Type</th>
           <th>Date Drawn</th>
           <th>Test Types</th>
@@ -166,7 +165,6 @@
               <td><%= test['district']%></td>
               <td><%= test['sending_facility']%></td>
               <td><%= test['receiving_facility']%></td>
-              <td><%= name%></td>
               <td><%= test['sample_type']%></td>
               <td><%= test['date_drawn'].to_date.strftime("%d-%b-%Y") rescue '--'%></td>
               <td><%= test['test_types'].join(', ')[0 .. 15]%></td>
@@ -190,11 +188,6 @@
       <tr class="table-row" style="width: 100%; border-bottom: 2px solid darkred;">
             <th class="table-cell" style="padding: 5px;">Tracking Number</th>
             <th class="table-cell clearable" key="_id" id="tracking_number" style="padding: 5px;"><%= tests.first['_id'] rescue nil%></th>
-      </tr>
-
-      <tr class="table-row" style="width: 100%">
-        <td class="table-cell" key="name" style="padding: 5px;"><b>Patient</b></td>
-        <td class="table-cell clearable" key="patient" id="patient" style="padding: 5px;"></td>
       </tr>
 
       <tr class="table-row" style="width: 100%">
