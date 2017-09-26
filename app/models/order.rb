@@ -138,16 +138,6 @@ class Order < CouchRest::Model::Base
                     }
                 }"
 
-
-
-    view :trying, 
-         :map => "function(doc) {
-                    if (doc.results)
-                     {  
-                           
-                                  emit(doc._id);
-                         
-
     view :validation_errors,
          :map => "function(doc) {
                     if (doc['doc_type'] && doc['doc_type'] == 'error')
