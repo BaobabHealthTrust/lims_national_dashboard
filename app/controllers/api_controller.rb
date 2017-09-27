@@ -86,10 +86,10 @@ class ApiController < ApplicationController
 
     tests.each do |r|    
        data  = {         
-             "#{Time.now}" => {
+             "#{DateTime.now.strftime('%Y%m%d%H%M%S')}" => {
                  "test_status"=> "Drawn",
                  "remarks" => "",
-                 "datetime_started" => "20170925151103",
+                 "datetime_started" => "#{DateTime.now.strftime('%Y%m%d%H%M%S')}",
                  "datetime_completed" => "",
                  "results" => {
                  }
@@ -110,7 +110,17 @@ class ApiController < ApplicationController
     render :json => samples
   end
 
-
+  def capture_sample_dispatcher
+    p_id = params[:p_id]
+    l_name = params[:l_name]
+    f_name = params[:f_name]
+    phone = params[:phone]    
+    tracking_number =  eval(params[:id])  
+      tracking_number.each do |r|
+          Order.capture_sample_dispatcher(r,p_id,l_name,f_name,phone)
+      end
+        render :json => "is done".to_json
+  end
 
   def validation_errors_list
     API.validation_errors_list

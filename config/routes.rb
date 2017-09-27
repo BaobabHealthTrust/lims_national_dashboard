@@ -93,4 +93,6 @@ Rails.application.routes.draw do
 
   get '/validation_errors_list' => 'api#validation_errors_list'
   post '/validation_errors_list' => 'api#validation_errors_list'
+
+  post '/capture_sample_dispatcher' => 'api#capture_sample_dispatcher'
 end

@@ -6,6 +6,8 @@ class Order < CouchRest::Model::Base
   property :_id, String
   property :test_types, {}
   property :results, {}
+  property :who_dispatched, {}
+  property :date_dispatched, String
 
 
   site = YAML.load_file("#{Rails.root}/config/application.yml")['site_name']
@@ -39,6 +41,19 @@ class Order < CouchRest::Model::Base
     rst || self['status']
   end
 
+  def self.capture_sample_dispatcher(tracking_number,p_id,l_name,f_name,phone)
+     sample =  Order.find(tracking_number)
+     
+     data = {
+                                    "id_number"    => p_id,
+                                    "first_name"   => f_name,
+                                    "last_name"    => l_name,
+                                    "phone_number" => phone
+                                }
+      sample.date_dispatched = DateTime.now.strftime("%Y%m%d%H%M%S")
+      sample.who_dispatched = data
+      sample.save()
+  end
 
   design do
 
@@ -194,6 +209,7 @@ class Order < CouchRest::Model::Base
                            emit([doc['category'] + '_' + doc['status'] + '_'  +  doc['datetime']]);
                        }
                }"
+
   end
 
 end
