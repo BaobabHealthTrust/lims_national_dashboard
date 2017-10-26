@@ -105,6 +105,18 @@ class Order < CouchRest::Model::Base
                     }
                 }"
 
+    view :by_site_and_undispatched,
+         :map => "function(doc){
+              var sample_type = doc['sample_type'];
+              sample_type = sample_type.replace(/[^a-zA-Z]/g,'');
+              var sample = 'DBS (Free drop to DBS card)';
+              sample = sample.replace(/[^a-zA-Z]/g,'');
+            if (doc['date_dispatched'] =='' &&  sample_type == sample)
+              {
+                 emit([doc.sending_facility]);
+              }
+         }"
+         
     view :by_test_type_and_status_and_datetime,
          :map => "function(doc){
                     if (doc['_id'].match(/^X/)) {
