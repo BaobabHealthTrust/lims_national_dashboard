@@ -4,6 +4,10 @@ class ApiController < ApplicationController
     render :text => File.read("public/api/vlstats.json")
   end
 
+  def undispatched_viral_load
+     render :text => File.read("public/api/undispatched_vl.json")
+  end
+
   def vl_result_by_npid
     results = []
     last_order = {}
@@ -83,8 +87,9 @@ class ApiController < ApplicationController
     got_results = order.results
     got_tests =  order.test_types
     got_tests += tests
-
+      
     tests.each do |r|    
+      
        data  = {         
              "#{DateTime.now.strftime('%Y%m%d%H%M%S')}" => {
                  "test_status"=> "Drawn",

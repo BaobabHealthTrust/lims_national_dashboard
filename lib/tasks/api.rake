@@ -29,4 +29,27 @@ namespace :api do
     end
   end
 
+  task  undispatched_vl: :environment do
+      settings = YAML.load_file("#{Rails.root}/config/application.yml")
+      site_name = settings["site_name"]
+      type ="DBS (Free drop to DBS card)"
+     
+      rows = {}
+      da = []
+      counter =0
+      Order.by_site_and_undispatched.each {|ord|
+        if ord['sending_facility'] == site_name  
+          da = ord
+         rows[counter] = da
+         counter = counter + 1
+        end
+
+      }
+
+     
+    File.open("public/api/undispatched_vl.json","w") do |f|
+      f.write(rows.to_json)
+    end
+      
+  end
 end
