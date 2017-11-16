@@ -120,11 +120,11 @@ class ApiController < ApplicationController
     l_name = params[:l_name]
     f_name = params[:f_name]
     phone = params[:phone]    
-    tracking_number =  eval(params[:id])  
-      tracking_number.each do |r|
-          Order.capture_sample_dispatcher(r,p_id,l_name,f_name,phone)
-      end
-        render :json => "is done".to_json
+    tracking_number =  params[:id]  
+      
+      Order.capture_sample_dispatcher(tracking_number,p_id,l_name,f_name,phone)
+      
+      render :json => "is done".to_json
   end
 
   def validation_errors_list
