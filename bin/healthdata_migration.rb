@@ -2,43 +2,46 @@ load "bin/tracking_number_service.rb"
 settings = YAML.load_file("#{Rails.root}/config/application.yml")
 configs = YAML.load_file("#{Rails.root}/config/couchdb.yml")[Rails.env]
 
-puts "Enter Health Data Database Name"
-#database = gets.chomp
-
-user = "root"
-password = "root"
-database = "healthdata"
-proceed  = "y"
-bart2_database = "bart2_db"
+puts "Enter MYSQL HOST e.g 0.0.0.0"
+host = gets.chomp
 
 puts "Enter MYSQL User e,g root"
-#user = gets.chomp
+user = gets.chomp
 
 puts "Enter MYSQL password"
-#password = gets.chomp
+password = STDIN.noecho(&:gets).chomp
 
-puts "Database: #{database} ,  SQL Username: #{user}  , SQL Password: #{password}"
+puts "Enter healthdata database name"
+healthdata_db = gets.chomp
+
+puts "Enter ART database name"
+art_db = gets.chomp
+
+puts "Enter National LIMS Couch Database"
+lims_db = gets.chomp
+
+puts "ART Database: #{art_db} , HealthData database: #{healthdata_db},  SQL Username: #{user}, LIMS database: #{lims_db}"
 
 puts "Continue migration using details above? (y/n)"
-#proceed = gets.chomp
+proceed = gets.chomp
 
 if proceed.downcase.strip != 'y'
   puts "Migration Stopped"
   Process.kill 9, Process.pid
 end
 
-con = Mysql2::Client.new(:host => "192.168.63.2",
+con = Mysql2::Client.new(:host => host,
                          :username => user,
                          :password => password,
-                         :database => database)
+                         :database => healthdata_db)
 
-bart2_con = Mysql2::Client.new(:host => "192.168.63.2",
-                               :username => "root",
-                               :password => "root",
-                               :database => "kawale")
+bart2_con = Mysql2::Client.new(:host => host,
+                               :username => user,
+                               :password => password,
+                               :database => art_db)
 
 total = con.query("SELECT COUNT(*) total FROM Lab_Sample INNER JOIN LabTestTable ON LabTestTable.AccessionNum = Lab_Sample.AccessionNum").first["total"].to_i
-samples = con.query("SELECT * FROM Lab_Sample INNER JOIN LabTestTable ON LabTestTable.AccessionNum = Lab_Sample.AccessionNum LIMIT 100")
+samples = con.query("SELECT * FROM Lab_Sample INNER JOIN LabTestTable ON LabTestTable.AccessionNum = Lab_Sample.AccessionNum")
 
 bulk = {
     "docs" => []
@@ -119,6 +122,6 @@ h["TestOrdered"]}
 end
 
 if bulk['docs'].length  > 0
-  url = "#{configs['protocol']}://#{configs['username']}:#{configs['password']}@#{configs['host']}:#{configs['port']}/lims_repo3/_bulk_docs"
+  url = "#{configs['protocol']}://#{configs['username']}:#{configs['password']}@#{configs['host']}:#{configs['port']}/#{lims_db}/_bulk_docs"
   RestClient.post(url, bulk.to_json, :content_type => "application/json")
 end

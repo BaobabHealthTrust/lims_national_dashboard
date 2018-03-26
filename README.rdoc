@@ -1,28 +1,18 @@
-== README
+Migration Instructions
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+git clone https://github.com/BaobabHealthTrust/lims_national_dashboard.git
 
-Things you may want to cover:
+Dependencies: 
+	ruby 2.1.2
+	rails 4.2.6
+	
+Copy all yml files with .example extension
 
-* Ruby version
+Install gems locally:
+	bundle install --local
 
-* System dependencies
+To migrate healthdata to LIMS: 
+	RAILS_ENV=development|production rails runner bin/healthdata_migration.rb
 
-* Configuration
+Respond to all prompts in terminal
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
