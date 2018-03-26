@@ -4,6 +4,10 @@ class ApiController < ApplicationController
     render :text => File.read("public/api/vlstats.json")
   end
 
+  def undispatched_viral_load
+     render :text => File.read("public/api/undispatched_vl.json")
+  end
+
   def vl_result_by_npid
     results = []
     last_order = {}
@@ -62,6 +66,68 @@ class ApiController < ApplicationController
     render :text => orders.sort_by{|o| o['date_time']}.reverse.to_json
   end
 
+
+
+  def share_lab_catalog
+      Lab.push_lab_cat_log(params)
+
+      render :text => "added".to_json
+  end
+
+  def drawn_un_drawn_sample
+
+  end
+
+  def add_test_to_order    
+    tests = params[:test]
+    tests = tests.delete_if(&:empty?)      
+    tracking_number = params[:_id]
+    got_results = {}
+    got_tests = {}
+    order = Order.find(tracking_number)
+    got_results = order.results
+    got_tests =  order.test_types
+    got_tests += tests
+      
+    tests.each do |r|    
+      
+       data  = {         
+             "#{DateTime.now.strftime('%Y%m%d%H%M%S')}" => {
+                 "test_status"=> "Drawn",
+                 "remarks" => "",
+                 "datetime_started" => "#{DateTime.now.strftime('%Y%m%d%H%M%S')}",
+                 "datetime_completed" => "",
+                 "results" => {
+                 }
+             }           
+        }           
+
+        got_results[r] = data
+    end
+    order.test_types= got_tests
+    order.results= got_results
+    order.save()
+    render :json => "is done".to_json
+  end
+
+  def retrieve_lab_catalog
+    lab_name =  params[:lab]    
+    samples =  Lab.find(lab_name)
+    render :json => samples
+  end
+
+  def capture_sample_dispatcher
+    p_id = params[:p_id]
+    l_name = params[:l_name]
+    f_name = params[:f_name]
+    phone = params[:phone]    
+    tracking_number =  params[:id]  
+      
+      Order.capture_sample_dispatcher(tracking_number,p_id,l_name,f_name,phone)
+      
+      render :json => "is done".to_json
+  end
+
   def validation_errors_list
     require 'api.rb'
     render :text => API.validation_errors_list(params).to_json
@@ -71,5 +137,6 @@ class ApiController < ApplicationController
     results = Order.find(params['id']) rescue []
     render :text => results.to_json
   end
+
 
 end

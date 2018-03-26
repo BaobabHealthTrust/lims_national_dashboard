@@ -2,7 +2,16 @@ require 'couchrest_model'
 
 class Order < CouchRest::Model::Base
 
+	
+  property :_id, String
+  property :test_types, {}
+  property :results, {}
+  property :who_dispatched, {}
+  property :date_dispatched, String
+
+
   site = YAML.load_file("#{Rails.root}/config/application.yml")['site_name']
+
   def tracking_number
     self['_id']
   end
@@ -11,7 +20,7 @@ class Order < CouchRest::Model::Base
     self['patient']['national_patient_id']
   end
 
-  def results
+  def result
     r = {}
     result_names = self['results'].keys
     result_names.each do |rn |
@@ -32,8 +41,25 @@ class Order < CouchRest::Model::Base
     rst || self['status']
   end
 
+  def self.capture_sample_dispatcher(tracking_number,p_id,l_name,f_name,phone)
+     sample =  Order.find(tracking_number)
+     
+     data = {
+                                    "id_number"    => p_id,
+                                    "first_name"   => f_name,
+                                    "last_name"    => l_name,
+                                    "phone_number" => phone
+                                }
+      sample.date_dispatched = DateTime.now.strftime("%Y%m%d%H%M%S")
+      sample.who_dispatched = data
+      sample.save()
+  end
+
   design do
-    view :generic,
+
+     view :by__id
+
+     view :generic,
          :map => "function(doc) {
                     if (doc['_id'].match(/^X/)) {
                       emit([doc['date_time']]);
@@ -94,6 +120,18 @@ class Order < CouchRest::Model::Base
                     }
                 }"
 
+    view :by_site_and_undispatched,
+         :map => "function(doc){
+              var sample_type = doc['sample_type'];
+              sample_type = sample_type.replace(/[^a-zA-Z]/g,'');
+              var sample = 'DBS (Free drop to DBS card)';
+              sample = sample.replace(/[^a-zA-Z]/g,'');
+            if (doc['date_dispatched'] =='' &&  sample_type == sample)
+              {
+                 emit([doc.sending_facility]);
+              }
+         }"
+         
     view :by_test_type_and_status_and_datetime,
          :map => "function(doc){
                     if (doc['_id'].match(/^X/)) {
@@ -130,7 +168,6 @@ class Order < CouchRest::Model::Base
                     }
                 }"
 
-
     view :validation_errors,
          :map => "function(doc) {
                     if (doc['doc_type'] && doc['doc_type'] == 'error')
@@ -160,6 +197,7 @@ class Order < CouchRest::Model::Base
                     if (doc['doc_type'] && doc['doc_type'] == 'error' && doc['sending_facility'] == '#{site}')
                      {
                           emit([doc['sending_facility'] + '_' + doc['category'] + '_' +  doc['category'] + '_' +  doc['datetime']]);
+
                      }
                }"
 
@@ -186,6 +224,7 @@ class Order < CouchRest::Model::Base
                            emit([doc['category'] + '_' + doc['status'] + '_'  +  doc['datetime']]);
                        }
                }"
+
   end
 
 end

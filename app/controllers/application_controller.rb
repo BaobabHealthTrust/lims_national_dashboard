@@ -5,8 +5,10 @@ class ApplicationController < ActionController::Base
   skip_before_action :verify_authenticity_token
 
   before_filter :check_user, :except => ["login", 'verify_user', 'viral_load_stats',
-                                         'vl_result_by_npid', 'patient_lab_trail',
-                                         'pull_vl_by_id']
+                                        'vl_result_by_npid', 'patient_lab_trail','retrieve_lab_catalog',
+                                         'share_lab_catalog','add_test_to_order',
+                                         'pull_vl_by_id','capture_sample_dispatcher']
+
 
   protected
 
@@ -18,7 +20,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-
-    @user =  User.find(session[:user_id])
+    
+    @user =  User.find(session[:user_id]) rescue nil
   end
 end

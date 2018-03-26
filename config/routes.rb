@@ -57,7 +57,8 @@ Rails.application.routes.draw do
   get "api/viral_load_stats"
   get "api/vl_result_by_npid"
   get "api/patient_lab_trail"
-   get "api/pull_vl_by_id"
+  get "api/pull_vl_by_id"
+  get "/api/undispatched_viral_load"
 
   get '/build_mysql_database' => 'test#build_mysql_database'
   post '/build_mysql_database' => 'test#build_mysql_database'
@@ -78,8 +79,21 @@ Rails.application.routes.draw do
   get '/data' => 'test#demoStructure'
   get '/load_patients' => 'test#load_patients'
 
+
+
+  post '/post_lab_catalog' => 'api#share_lab_catalog'
+  post '/draw_un_drawn_sample' => 'api#drawn_un_drawn_sample'
+  post '/add_test' => 'api#add_test_to_order'
+
+
+  #apis 
+  post '/lab_catalog' => 'api#retrieve_lab_catalog' 
+  post '/push_lab_catalog' => 'api#share_lab_catalog'
+
   get '/view_validations' => 'report#view_validations'
 
   get '/validation_errors_list' => 'api#validation_errors_list'
   post '/validation_errors_list' => 'api#validation_errors_list'
+
+  post '/capture_sample_dispatcher' => 'api#capture_sample_dispatcher'
 end
