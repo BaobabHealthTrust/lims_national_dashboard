@@ -63,7 +63,8 @@ class ApiController < ApplicationController
   end
 
   def validation_errors_list
-    API.validation_errors_list
+    require 'api.rb'
+    render :text => API.validation_errors_list(params).to_json
   end
 
   def pull_vl_by_id

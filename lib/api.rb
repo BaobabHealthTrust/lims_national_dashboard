@@ -177,7 +177,7 @@ module API
 
   end
 
-  def self.validation_errors_list
+  def self.validation_errors_list(params)
 
     options = params.reject{|x, v| x.match(/controller|action/)}
     rule = options['category']
@@ -194,7 +194,7 @@ module API
     start_key = "#{rule}_#{status}_#{start_date.strftime("%Y%m%d%H%M%S")}"
     end_key   = "#{rule}_#{status}_#{end_date.strftime("%Y%m%d%H%M%S")}"
 
-    if current_user.user_role == "Administrator"
+    if (current_user.user_role rescue nil) == "Administrator"
       data = Order.by_error_category_status_and_datetime.startkey([start_key]).endkey([end_key]).each
     else
       data = Order.by_error_category_status_and_datetime_on_my_site.startkey([start_key]).endkey([end_key]).each
@@ -215,7 +215,7 @@ module API
       }
     end
 
-    render :text => results.to_json
+    return results
   end
 
 end
