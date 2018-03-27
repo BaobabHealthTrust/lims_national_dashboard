@@ -101,7 +101,7 @@ h["TestOrdered"]}
       "who_order_test"=> {
           "first_name"=> "",
           "last_name"=> "",
-          "id_number"=> row['OrderedBy'],
+          "id_number"=> "#{row['OrderedBy']}",
           "phone_number"=> ""
       },
       "date_drawn"=>  (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}000000"),
