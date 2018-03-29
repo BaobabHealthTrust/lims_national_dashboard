@@ -1,7 +1,7 @@
 load "bin/tracking_number_service.rb"
 $settings = YAML.load_file("#{Rails.root}/config/application.yml")
 $configs = YAML.load_file("#{Rails.root}/config/couchdb.yml")[Rails.env]
-$counter_hash = JSON.parse(File.read("#{Rails.root}/public/tracker.json")) rescue {}
+
 puts "Enter MYSQL HOST e.g 0.0.0.0"
 host = gets.chomp
 
@@ -37,6 +37,8 @@ puts "Finished initialisation"
 File.open("#{Rails.root}/public/tracker.json", 'w') {|f|
       f.write({}.to_json) }
 
+$counter_hash = JSON.parse(File.read("#{Rails.root}/public/tracker.json")) rescue {}
+
 con = Mysql2::Client.new(:host => host,
                          :username => user,
                          :password => password,
@@ -56,6 +58,7 @@ bulk = {
 
 def check_counter_per_date(date)
  date = date.strftime("%Y%m%d")
+
  if $counter_hash[date].blank? 
   do_reset(date)
  end 
@@ -66,11 +69,11 @@ def do_reset(date)
   end_date = date.to_date.strftime("%Y%m%d235959")
 
   query_link = $couch_query_url + "?startkey=[\"#{start_date}\"]&endkey=[\"#{end_date}\"]"
-  available_samples = JSON.parse(RestClient.get(URI.encode(query_link), :content_type => "application/json"))
+  available_samples = JSON.parse(RestClient.get(URI.encode(query_link), :content_type => "application/json")) 
+
   tracking_numbers = available_samples['rows'].collect{|h| h['id']}
   max_track_num    = tracking_numbers.max.to_s.strip
   puts max_track_num 
-  puts date
   daily_counter = max_track_num.reverse[0 .. 2].reverse.to_i 
  
   if daily_counter >= 0
@@ -85,7 +88,7 @@ def do_reset(date)
 end 
 
 samples.each_with_index do |row, i|
-  check_counter_per_date(row['OrderDate'].to_date)
+  check_counter_per_date(row['OrderDate'].to_date) if $counter_hash[row['OrderDate'].to_date.strftime("%Y%m%d")].blank?
 
   puts "#{(i + 1)}/#{total}"
   patient = bart2_con.query(
@@ -156,10 +159,12 @@ h["TestOrdered"]}
       "priority"=> "Routine",
       "order_location"=> row['Location'],
       "results"=> formatted_results,
-      "sample_status"=> "specimen-accepted"
+      "sample_status"=> "specimen-accepted",
+      "date_time"   => (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}000000")
   }
 end
 
+puts "Loading #{ bulk['docs'].count} docs to CouchDB"
 if bulk['docs'].length  > 0
   url = "#{$configs['protocol']}://#{$configs['username']}:#{$configs['password']}@#{$configs['host']}:#{$configs['port']}/#{$lims_db}/_bulk_docs"
   RestClient.post(url, bulk.to_json, :content_type => "application/json")
