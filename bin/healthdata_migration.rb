@@ -73,9 +73,10 @@ def do_reset(date)
 
   tracking_numbers = available_samples['rows'].collect{|h| h['id']}
   max_track_num    = tracking_numbers.max.to_s.strip
-  puts max_track_num 
+	
   daily_counter = max_track_num.reverse[0 .. 2].reverse.to_i 
- 
+ 	puts "#{date} ::: #{daily_counter}"
+
   if daily_counter >= 0
     file = JSON.parse(File.read("#{Rails.root}/public/tracker.json")) rescue {}
     todate = date.to_date.strftime("%Y%m%d")
@@ -88,7 +89,7 @@ def do_reset(date)
 end 
 
 samples.each_with_index do |row, i|
-  check_counter_per_date(row['OrderDate'].to_date) if $counter_hash[row['OrderDate'].to_date.strftime("%Y%m%d")].blank?
+  check_counter_per_date(row['OrderDate'].to_date) if ($counter_hash[row['OrderDate']].blank? || $counter_hash[row['OrderDate'].to_date.strftime("%Y%m%d")].blank?)
 
   puts "#{(i + 1)}/#{total}"
   patient = bart2_con.query(
@@ -123,13 +124,12 @@ h["TestOrdered"]}
         "datetime_completed" => time,
         "remarks"            => "",
         "results"            => {
-                                  rst['TestName'] => rst['TESTVALUE']
+                                  rst['TestName'] => "#{rst['Range'].to_s.strip} #{rst['TESTVALUE'].to_s.strip}"
                                 }
     }
   end
 
-  bulk['docs'] << {
-      "_id"=> TrackingNumberService.generate_tracking_number(row['OrderDate'].to_date),
+  doc = {
       "patient"=> {
           "national_patient_id"=> patient["npid"],
           "first_name"=> patient['given_name'],
@@ -162,10 +162,18 @@ h["TestOrdered"]}
       "sample_status"=> "specimen-accepted",
       "date_time"   => (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}000000")
   }
+
+	t_num =  TrackingNumberService.generate_tracking_number(row['OrderDate'].to_date)
+  url = "#{$configs['protocol']}://#{$configs['username']}:#{$configs['password']}@#{$configs['host']}:#{$configs['port']}/#{$lims_db}/#{t_num}"
+  RestClient.put(url, doc.to_json, :content_type => "application/json")
 end
 
-puts "Loading #{ bulk['docs'].count} docs to CouchDB"
-if bulk['docs'].length  > 0
-  url = "#{$configs['protocol']}://#{$configs['username']}:#{$configs['password']}@#{$configs['host']}:#{$configs['port']}/#{$lims_db}/_bulk_docs"
-  RestClient.post(url, bulk.to_json, :content_type => "application/json")
-end
+puts "Done!!"
+
+=begin
+	if bulk['docs'].length  < 0
+		url = "#{$configs['protocol']}://#{$configs['username']}:#{$configs['password']}@#{$configs['host']}:#{$configs['port']}/#{$lims_db}/_bulk_docs"
+		RestClient.post(url, bulk.to_json, :content_type => "application/json")
+	end
+=end
+
