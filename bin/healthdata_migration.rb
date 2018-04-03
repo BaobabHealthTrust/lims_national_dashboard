@@ -17,8 +17,9 @@ healthdata_db = gets.chomp
 puts "Enter ART database name"
 art_db = gets.chomp
 
-puts "Enter National LIMS Couch Database"
-$lims_db = gets.chomp
+$lims_db = "#{$configs['prefix']}_#{$configs['suffix']}"
+puts "Data to be migrated to NLIMS database #{$lims_db}"
+
 $couch_query_url = "#{$configs['protocol']}://#{$configs['username']}:#{$configs['password']}@#{$configs['host']}:#{$configs['port']}/#{$lims_db}/_design/Order/_view/generic"
 puts "ART Database: #{art_db} , HealthData database: #{healthdata_db},  SQL Username: #{user}, LIMS database: #{$lims_db}"
 
@@ -75,7 +76,6 @@ def do_reset(date)
   max_track_num    = tracking_numbers.max.to_s.strip
 	
   daily_counter = max_track_num.reverse[0 .. 2].reverse.to_i 
- 	puts "#{date} ::: #{daily_counter}"
 
   if daily_counter >= 0
     file = JSON.parse(File.read("#{Rails.root}/public/tracker.json")) rescue {}
@@ -101,6 +101,13 @@ samples.each_with_index do |row, i|
                     INNER JOIN patient_identifier pid2 ON pid2.patient_id = pid.patient_id AND pid2.voided = 0
                   WHERE pid.identifier = '#{row['PATIENTID']}' AND pid2.voided = 0 GROUP BY pid.patient_id
                 ").as_json[0] # rescue {}
+
+  orderer = bart2_con.query(
+                "SELECT n.given_name, n.middle_name, n.family_name FROM users u
+                    INNER JOIN person_name n ON n.person_id = u.person_id
+                  WHERE u.user_id = '#{row['OrderedBy']}' AND n.voided = 0 
+									ORDER BY u.date_created DESC
+                ").as_json[0] rescue {}
 
   tests = con.query("SELECT TestOrdered FROM LabTestTable WHERE AccessionNum = #{row['AccessionNum']}").as_json.collect{
       |h| 
@@ -141,8 +148,8 @@ h["TestOrdered"]}
       },
       "sample_type"=> "Blood",
       "who_order_test"=> {
-          "first_name"=> "",
-          "last_name"=> "",
+          "first_name"=> orderer['given_name'],
+          "last_name"=> orderer['family_name'],
           "id_number"=> "#{row['OrderedBy']}",
           "phone_number"=> ""
       },
