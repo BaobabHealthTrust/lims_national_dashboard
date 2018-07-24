@@ -118,22 +118,24 @@ h["TestOrdered"]}
     LEFT JOIN codes_TestType ON Lab_Parameter.TestType = codes_TestType.TestType
     WHERE Sample_ID = #{row['Sample_ID']}").as_json
 
+  order_date = "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_date.strftime('%H%M%S')}"
   formatted_results = {}
   results.each do |rst|
     next if rst['TESTVALUE'].blank?
-
-    rst['TestName'] = "Viral Load" if rst['TestName'] = "HIV_DNA_PCR"
-    formatted_results[rst['TestName']] = {}
-    time = rst['TimeStamp'].to_datetime.strftime("%Y%m%d%H%M%S")
-    formatted_results[rst['TestName']][time] = {
-        "test_status"        => "verified",
-        "datetime_started"   => "",
-        "datetime_completed" => time,
-        "remarks"            => "",
-        "results"            => {
-                                  rst['TestName'] => "#{rst['Range'].to_s.strip} #{rst['TESTVALUE'].to_s.strip}"
-                                }
-    }
+      time = rst['TimeStamp'].to_datetime.strftime("%Y%m%d%H%M%S")
+      time =  order_date if time < order_date
+        rst['TestName'] = "Viral Load" if rst['TestName'] = "HIV_DNA_PCR"
+        formatted_results[rst['TestName']] = {}      
+        formatted_results[rst['TestName']][time] = {
+            "test_status"        => "verified",
+            "datetime_started"   => "",
+            "datetime_completed" => time,
+            "remarks"            => "",
+            "results"            => {
+                                      rst['TestName'] => "#{rst['Range'].to_s.strip} #{rst['TESTVALUE'].to_s.strip}"
+                                    }
+        }
+    
   end
 
   doc = {
