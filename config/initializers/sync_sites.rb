@@ -1,3 +1,4 @@
 require "sync_sites.rb"
 
-SyncSites.perform_in(0)
+
+SyncSites.perform_in(60)

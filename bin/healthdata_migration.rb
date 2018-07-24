@@ -126,7 +126,7 @@ h["TestOrdered"]}
     formatted_results[rst['TestName']] = {}
     time = rst['TimeStamp'].to_datetime.strftime("%Y%m%d%H%M%S")
     formatted_results[rst['TestName']][time] = {
-        "test_status"        => "completed",
+        "test_status"        => "verified",
         "datetime_started"   => "",
         "datetime_completed" => time,
         "remarks"            => "",
@@ -146,17 +146,17 @@ h["TestOrdered"]}
           "gender"=> patient['gender'],
           "phone_number"=> ""
       },
-      "sample_type"=> "Blood",
+      "sample_type"=> "DBS (Free drop to DBS card)",
       "who_order_test"=> {
           "first_name"=> orderer['given_name'],
           "last_name"=> orderer['family_name'],
           "id_number"=> "#{row['OrderedBy']}",
           "phone_number"=> ""
       },
-      "date_drawn"=>  (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}000000"),
+      "date_drawn"=>  (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_date.strftime('%H%M%S')}"),
       "date_dispatched"=> "",
       "art_start_date"=> (patient['start_date'].to_datetime.strftime("%Y%m%d%H%M%S") rescue nil),
-      "date_received"=>  (row['RcvdAtLabDate'].blank? ? nil : "#{row['RcvdAtLabDate'].to_date.strftime('%Y%m%d')}000000"),
+      "date_received"=>  (row['RcvdAtLabDate'].blank? ? nil : "#{row['RcvdAtLabDate'].to_date.strftime('%Y%m%d')}" + "#{row['RcvdAtLabTime'].to_date.strftime('%H%M%S')}"),
       "sending_facility"=> $settings['site_name'],
       "receiving_facility"=> $settings['target_lab'],
       "reason_for_test"=> "",
@@ -167,7 +167,7 @@ h["TestOrdered"]}
       "order_location"=> row['Location'],
       "results"=> formatted_results,
       "sample_status"=> "specimen-accepted",
-      "date_time"   => (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}000000")
+      "date_time"   => (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_date.strftime('%H%M%S')}")
   }
 
 	t_num =  TrackingNumberService.generate_tracking_number(row['OrderDate'].to_date)

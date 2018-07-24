@@ -35,9 +35,9 @@ class VlStats
             f.write(map.to_json)
             end
 
-            VlStats.perform_in(1)
+            VlStats.perform_in(60)
         rescue
-            VlStats.perform_in(1)
+            VlStats.perform_in(60)
         end
     end
 end

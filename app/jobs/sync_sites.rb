@@ -15,9 +15,9 @@ class SyncSites
 
             Sync.sync_all
            
-            SyncSites.perform_in(0)
+            SyncSites.perform_in(60)
         rescue
-            SyncSites.perform_in(0)
+            SyncSites.perform_in(60)
         end
     end
     

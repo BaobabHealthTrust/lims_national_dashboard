@@ -16,3 +16,11 @@ To migrate healthdata to LIMS:
 
 Respond to all prompts in terminal
 
+
+
+----------------NOTE---------------
+
+Make sure you have the following and should be from same facility
+	: healthdata database
+	: openmrs database, this is named either openmrs or another named
+

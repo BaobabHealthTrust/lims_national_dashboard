@@ -29,9 +29,9 @@ class UndispatchedSamples
             File.open("public/api/undispatched_vl.json","w") do |f|
               f.write(rows.to_json)
             end      
-            UndispatchedSamples.perform_in(1)
+            UndispatchedSamples.perform_in(60)
         rescue
-            UndispatchedSamples.perform_in(1)
+            UndispatchedSamples.perform_in(60)
         end
 
     end
