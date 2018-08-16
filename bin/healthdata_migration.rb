@@ -65,6 +65,8 @@ def check_counter_per_date(date)
  end 
 end  
 
+
+
 def do_reset(date)
   start_date = date.to_date.strftime("%Y%m%d000000")
   end_date = date.to_date.strftime("%Y%m%d235959")
@@ -88,18 +90,47 @@ def do_reset(date)
   end
 end 
 
+
+def create_concept(con)
+  concept_id = con.query("SELECT concept.concept_id AS concept_id FROM concept_name 
+                        INNER JOIN concept ON concept.concept_id = concept_name.concept_id
+                        WHERE concept_name.name='HIV viral load'").as_json[0]['concept_id']
+  return concept_id
+end
+
+def create_encounter(con,patient_id,location_id,date_created,orderer)
+  encounter_date = date_created 
+  creator = orderer
+  date_created = date_created
+  voided = 0
+  provider = 92
+  voided_by = 1
+  date_voided = date_created
+  void_reason = ""
+  
+  changed_by = 1
+  date_Changed = date_created
+  encounter_id = order_counter = con.query("SELECT MAX(encounter_id) AS total FROM encounter").as_json[0]['total'].to_i +  1
+  uuid = con.query("SELECT uuid()").as_json[0]['uuid()']
+  encounter_type = con.query("SELECT encounter_type_id AS encout_type FROM encounter_type WHERE name ='LAB'").as_json[0]['encout_type']
+  con.query("INSERT INTO encounter (encounter_id,encounter_type,patient_id,provider_id,location_id,encounter_datetime,creator,date_created,voided,voided_by,date_voided,void_reason,uuid,changed_by,date_changed) 
+            VALUES('#{encounter_id}','#{encounter_type}','#{patient_id}','#{provider}','#{location_id}','#{encounter_date}','#{creator}','#{date_created}','#{voided}','#{voided_by}','#{date_voided}','#{void_reason}','#{uuid}','#{changed_by}','#{date_created}')")
+  return encounter_id
+
+end
+
 samples.each_with_index do |row, i|
   check_counter_per_date(row['OrderDate'].to_date) if ($counter_hash[row['OrderDate']].blank? || $counter_hash[row['OrderDate'].to_date.strftime("%Y%m%d")].blank?)
 
   puts "#{(i + 1)}/#{total}"
+ 
   patient = bart2_con.query(
-                "SELECT n.given_name, n.middle_name, n.family_name, p.birthdate, p.gender, pid2.identifier npid, sd.earliest_start_date start_date
+                "SELECT n.given_name, n.middle_name, n.family_name, p.birthdate, p.gender, pid2.identifier npid, pid2.patient_id npid2
 		 FROM patient_identifier pid
                     INNER JOIN person_name n ON n.person_id = pid.patient_id
                     INNER JOIN person p ON p.person_id = pid.patient_id
-		    LEFT JOIN temp_earliest_start_date sd ON sd.patient_id = p.person_id
                     INNER JOIN patient_identifier pid2 ON pid2.patient_id = pid.patient_id AND pid2.voided = 0
-                  WHERE pid.identifier = '#{row['PATIENTID']}' AND pid2.voided = 0 GROUP BY pid.patient_id
+                  WHERE pid.identifier = '#{row['PATIENTID']}' AND pid2.voided = 0
                 ").as_json[0] # rescue {}
 
   orderer = bart2_con.query(
@@ -117,8 +148,8 @@ h["TestOrdered"]}
   results = con.query("SELECT * FROM Lab_Parameter
     LEFT JOIN codes_TestType ON Lab_Parameter.TestType = codes_TestType.TestType
     WHERE Sample_ID = #{row['Sample_ID']}").as_json
-
-  order_date = "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_date.strftime('%H%M%S')}"
+  
+  order_date = "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}"
   formatted_results = {}
   results.each do |rst|
     next if rst['TESTVALUE'].blank?
@@ -137,7 +168,7 @@ h["TestOrdered"]}
         }
     
   end
-
+  next if patient.blank? || orderer.blank?
   doc = {
       "patient"=> {
           "national_patient_id"=> patient["npid"],
@@ -155,10 +186,10 @@ h["TestOrdered"]}
           "id_number"=> "#{row['OrderedBy']}",
           "phone_number"=> ""
       },
-      "date_drawn"=>  (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_date.strftime('%H%M%S')}"),
+      "date_drawn"=>  (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}"),
       "date_dispatched"=> "",
       "art_start_date"=> (patient['start_date'].to_datetime.strftime("%Y%m%d%H%M%S") rescue nil),
-      "date_received"=>  (row['RcvdAtLabDate'].blank? ? nil : "#{row['RcvdAtLabDate'].to_date.strftime('%Y%m%d')}" + "#{row['RcvdAtLabTime'].to_date.strftime('%H%M%S')}"),
+      "date_received"=>  (row['RcvdAtLabDate'].blank? ? nil : "#{row['RcvdAtLabDate'].to_date.strftime('%Y%m%d')}" + "#{row['RcvdAtLabTime'].to_time.strftime('%H%M%S')}"),
       "sending_facility"=> $settings['site_name'],
       "receiving_facility"=> $settings['target_lab'],
       "reason_for_test"=> "",
@@ -169,13 +200,55 @@ h["TestOrdered"]}
       "order_location"=> row['Location'],
       "results"=> formatted_results,
       "sample_status"=> "specimen-accepted",
-      "date_time"   => (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_date.strftime('%H%M%S')}")
+      "date_time"   => (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}")
   }
 
-	t_num =  TrackingNumberService.generate_tracking_number(row['OrderDate'].to_date)
+  t_num =  TrackingNumberService.generate_tracking_number(row['OrderDate'].to_date)
+  puts t_num
   url = "#{$configs['protocol']}://#{$configs['username']}:#{$configs['password']}@#{$configs['host']}:#{$configs['port']}/#{$lims_db}/#{t_num}"
-  RestClient.put(url, doc.to_json, :content_type => "application/json")
+  res  = JSON.parse(RestClient.put(url, doc.to_json, :content_type => "application/json"))
+  
+  if res['ok'] == true
+    order_type = "4"
+    orderer_id = row['OrderedBy']   
+    instructions = ""
+    start_date = (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}")
+    expiry_date = (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}")
+    discountined = 0
+    discountined_date = (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}")
+    discountined_by = row['OrderedBy']
+    discountined_reason = 1
+    creator = row['OrderedBy']
+    date_created = (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}")
+    voided = 0
+    voided_by = row['OrderedBy']
+    voided_date = (row['OrderDate'].blank? ? "" : "#{row['OrderDate'].to_date.strftime('%Y%m%d')}" + "#{row['OrderTime'].to_time.strftime('%H%M%S')}")
+    voided_reason = ""
+    patient_id = patient["npid2"]
+    accession_number = res['id']
+    obs_id = 1
+    
+    discountined_reason_non_coded = ""
+    order_location =  265
+
+    concept_id = create_concept(bart2_con)
+    encouter_id = create_encounter(bart2_con,patient_id,order_location,date_created,orderer_id)    
+
+    order_counter = bart2_con.query("SELECT MAX(order_id) AS total FROM orders").as_json[0]['total'].to_i +  1
+    uuid = order_counter
+    bart2_con.query("INSERT INTO orders VALUES('#{order_counter}','#{order_type}','#{concept_id}','#{orderer_id}','#{encouter_id}','#{instructions}','#{start_date}','#{expiry_date}','#{discountined}','#{discountined_date}','#{discountined_by}','#{discountined_reason}','#{creator}','#{date_created}','#{voided}','#{voided_by}','#{voided_date}','#{voided_reason}','#{patient_id}','#{accession_number}','#{obs_id}','#{uuid}','#{discountined_reason_non_coded}')")
+    
+  end
+
 end
+
+
+
+def create_observation()
+
+end
+
+
 
 puts "Done!!"
 
